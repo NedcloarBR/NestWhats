@@ -6,7 +6,7 @@
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
 	},
-	"license": "MIT",
+	"license": "GPL-3.0",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/NedcloarBR/NestWhats.git"
