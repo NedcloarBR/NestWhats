@@ -270,6 +270,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/qrcode@npm:^1.5.5":
+  version: 1.5.5
+  resolution: "@types/qrcode@npm:1.5.5"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/b8e6709905d1edb32dda414408acab18ac4aefcbe7bf96d9e32ba94218f45b99c8938ba7a09863ce82a67b226195099fd0f48881d16ee844899087b7f249955f
+  languageName: node
+  linkType: hard
+
 "@types/yauzl@npm:^2.9.1":
   version: 2.10.3
   resolution: "@types/yauzl@npm:2.10.3"
@@ -1129,6 +1138,7 @@ __metadata:
     "@nestjs/common": "npm:11.0.5"
     "@nestjs/core": "npm:11.0.5"
     "@types/node": "npm:22.10.10"
+    "@types/qrcode": "npm:^1.5.5"
     globals: "npm:^15.14.0"
     path-to-regexp: "npm:8.2.0"
     prettier: "npm:3.4.2"

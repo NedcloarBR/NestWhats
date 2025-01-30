@@ -7,7 +7,7 @@ import {
 	OnModuleInit,
 } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
-import QRCode from "qrcode";
+import { toString as QRCodeString } from "qrcode";
 import { Client, Events } from "whatsapp-web.js";
 import { CommandsModule } from "./commands/commands.module";
 import { ListenersModule } from "./listeners";
@@ -52,9 +52,13 @@ export class NestWhatsModule
 
 	public onModuleInit(): void {
 		this.client.once(Events.QR_RECEIVED, (qr) => {
-			QRCode.toString(qr, { type: "terminal", small: true }, (err, url) => {
+			QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
+				if (err) {
+					this.logger.error(`Error generating QR code: ${err.message}`);
+					return;
+				}
 				this.logger.verbose("Scan the QR code below to authenticate:");
-				this.logger.verbose(url);
+				console.log(url);
 			});
 		});
 	}
