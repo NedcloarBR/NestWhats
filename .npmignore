@@ -12,3 +12,4 @@ biome.json
 tsconfig.json
 yarn.lock
 yarn-error.log
+.yarn/
