@@ -365,10 +365,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nedcloarbr/biome-config@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "@nedcloarbr/biome-config@npm:1.6.1"
-  checksum: 10c0/f80e96dc1f8617aec55f12f2358d6b1cf3684485dabf16c1f46b7ffb83ec703949ed405afe574c0b97dd212b76bf90fbff52925b713db2270b2c2c7a4deb32de
+"@nedcloarbr/biome-config@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@nedcloarbr/biome-config@npm:1.7.0"
+  checksum: 10c0/1346ba9b9b9ce6f8fbef1accb4abaf2a7b271fef8e5a3c4c3db4678f74b86091c1daa01f5ed29919614b2bf89269e1b74d4405327b2ba3e9f1c1cb527ddea00d
   languageName: node
   linkType: hard
 
@@ -1989,7 +1989,7 @@ __metadata:
     "@biomejs/biome": "npm:^1.9.4"
     "@commitlint/cli": "npm:19.6.1"
     "@commitlint/config-angular": "npm:19.7.0"
-    "@nedcloarbr/biome-config": "npm:^1.6.1"
+    "@nedcloarbr/biome-config": "npm:^1.7.0"
     "@nestjs/common": "npm:11.0.5"
     "@nestjs/core": "npm:11.0.5"
     "@types/node": "npm:22.10.10"

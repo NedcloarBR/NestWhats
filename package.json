@@ -51,7 +51,7 @@
 		"@biomejs/biome": "^1.9.4",
 		"@commitlint/cli": "19.6.1",
 		"@commitlint/config-angular": "19.7.0",
-		"@nedcloarbr/biome-config": "^1.6.1",
+		"@nedcloarbr/biome-config": "^1.7.0",
 		"@nestjs/common": "11.0.5",
 		"@nestjs/core": "11.0.5",
 		"@types/node": "22.10.10",
