@@ -3,5 +3,19 @@
 	"extends": [
 		"@nedcloarbr/biome-config/nestjs",
 		"@nedcloarbr/biome-config/ignore"
-	]
+	],
+	"linter": {
+		"rules": {
+			"style": {
+				"useImportType": "off"
+			},
+			"complexity": {
+				"noForEach": "off",
+				"noBannedTypes": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
+			}
+		}
+	}
 }
