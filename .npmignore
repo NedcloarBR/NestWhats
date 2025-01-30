@@ -7,7 +7,7 @@ src
 test
 .commitlintrc.json
 .editorconfig
-.eslintrc
+biome.json
 .gitattributes
 tsconfig.json
 yarn.lock
