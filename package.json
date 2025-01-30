@@ -37,6 +37,7 @@
 	],
 	"scripts": {
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
+		"changelog": "git cliff --prepend ./CHANGELOG.md -l --current -c ./cliff.toml -r .",
 		"format": "yarn biome format --write ./",
 		"lint": "yarn biome lint ./",
 		"check": "yarn biome check --write ./",
