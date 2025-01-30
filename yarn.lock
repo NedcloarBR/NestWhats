@@ -372,9 +372,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:11.0.5":
-  version: 11.0.5
-  resolution: "@nestjs/common@npm:11.0.5"
+"@nestjs/common@npm:11.0.6":
+  version: 11.0.6
+  resolution: "@nestjs/common@npm:11.0.6"
   dependencies:
     iterare: "npm:1.2.1"
     tslib: "npm:2.8.1"
@@ -389,7 +389,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: 10c0/e65066d076e2d36dcd728ab09499e313f29c7867c975057568522538b8537f2ba689b9f488aafe7bfa6cfdd6e33bc36d4023c725bbac681bb98b537bde2a2422
+  checksum: 10c0/e1c773c480634bf991a06f4db8862f10a6d6e7f45c60eee69b671ccd447fc501d5a7e2efb96739980deccaaeeb189c5f5502e8feb0456c858e9c1abb2d6fcbae
   languageName: node
   linkType: hard
 
@@ -1990,7 +1990,7 @@ __metadata:
     "@commitlint/cli": "npm:19.6.1"
     "@commitlint/config-angular": "npm:19.7.0"
     "@nedcloarbr/biome-config": "npm:^1.7.0"
-    "@nestjs/common": "npm:11.0.5"
+    "@nestjs/common": "npm:11.0.6"
     "@nestjs/core": "npm:11.0.6"
     "@types/node": "npm:22.10.10"
     "@types/qrcode": "npm:^1.5.5"
