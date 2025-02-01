@@ -43,7 +43,7 @@
 		"format": "yarn biome format --write ./",
 		"lint": "yarn biome lint ./",
 		"check": "yarn biome check --write ./",
-		"postinstall": "husky"
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"path-to-regexp": "8.2.0",
