@@ -11,6 +11,7 @@ test/
 .gitignore
 .lintstagedrc
 .nvmrc
+.release-it.json
 .yarnrc.yml
 biome.json
 cliff.toml
