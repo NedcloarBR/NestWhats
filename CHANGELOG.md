@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [v1.0.1](https://github.com/NedcloarBR/NestWhats/commits/v1.0.0...v1.0.1) - (2025-02-01)
+
+## Bug Fixes
+
+- Node engine ([56e41d4](https://github.com/NedcloarBR/NestWhats/commit/56e41d42cce4507a40f8373d67890b3ab6155535))
+
 # [v1.0.0](https://github.com/NedcloarBR/NestWhats/commits/v1.0.0) - (2025-02-01)
 
 ## Features
