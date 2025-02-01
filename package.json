@@ -1,7 +1,7 @@
 {
 	"name": "nestwhats",
 	"description": "A whatsapp-web.js wrapper for NestJS to create WhatsApp bots",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
