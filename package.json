@@ -1,7 +1,7 @@
 {
 	"name": "nestwhats",
 	"description": "A whatsapp-web.js wrapper for NestJS to create WhatsApp bots",
-	"version": "1.0.0",
+	"version": "0.0.0",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
@@ -38,6 +38,8 @@
 	"scripts": {
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"changelog": "git cliff --prepend ./CHANGELOG.md -l --current -c ./cliff.toml -r .",
+		"prepublish:npm": "yarn build",
+		"publish:npm": "release-it",
 		"format": "yarn biome format --write ./",
 		"lint": "yarn biome lint ./",
 		"check": "yarn biome check --write ./",
@@ -61,6 +63,7 @@
 		"lint-staged": "15.4.3",
 		"prettier": "3.4.2",
 		"reflect-metadata": "0.2.2",
+		"release-it": "18.1.2",
 		"rimraf": "6.0.1",
 		"rxjs": "7.8.1",
 		"ts-node": "10.9.2",
