@@ -557,9 +557,9 @@ __metadata:
   linkType: hard
 
 "@nedcloarbr/biome-config@npm:^1.7.1":
-  version: 1.7.1
-  resolution: "@nedcloarbr/biome-config@npm:1.7.1"
-  checksum: 10c0/b5ff017917699a5405c9127a39e6d73c5256dd4c1e3b412f9d44a20fba7cef11b6d9dc598a47cc4bd1d7b701c048fb4d44dbaa4580f37c975c013ed00ae066fb
+  version: 1.9.0
+  resolution: "@nedcloarbr/biome-config@npm:1.9.0"
+  checksum: 10c0/34868758d3e13bfdc1a4686126e40dbe28e2e1ef0a849d7b67c214540b08ba7d780ac569bb0baba0f09e482bd3d041df48913dc9c866f9db5c8a33a177532616
   languageName: node
   linkType: hard
 
