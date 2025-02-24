@@ -3164,7 +3164,7 @@ __metadata:
     reflect-metadata: "npm:0.2.2"
     release-it: "npm:18.1.2"
     rimraf: "npm:6.0.1"
-    rxjs: "npm:7.8.1"
+    rxjs: "npm:7.8.2"
     ts-node: "npm:10.9.2"
     typescript: "npm:5.7.3"
     whatsapp-web.js: "npm:^1.26.0"
@@ -3961,7 +3961,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.8.1, rxjs@npm:^7.8.1":
+"rxjs@npm:7.8.2":
+  version: 7.8.2
+  resolution: "rxjs@npm:7.8.2"
+  dependencies:
+    tslib: "npm:^2.1.0"
+  checksum: 10c0/1fcd33d2066ada98ba8f21fcbbcaee9f0b271de1d38dc7f4e256bfbc6ffcdde68c8bfb69093de7eeb46f24b1fb820620bf0223706cff26b4ab99a7ff7b2e2c45
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^7.8.1":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
