@@ -131,19 +131,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/config-angular-type-enum@npm:^19.5.0":
-  version: 19.5.0
-  resolution: "@commitlint/config-angular-type-enum@npm:19.5.0"
-  checksum: 10c0/d8bb2ad6699e3413c8a9647b59cb866be0194c84adc17b1fe3a80c8b4d1fd972c9280940add39a2d79e8482173394b548a0bdebea4be054de94c6db3830a841e
+"@commitlint/config-angular-type-enum@npm:^19.8.0":
+  version: 19.8.0
+  resolution: "@commitlint/config-angular-type-enum@npm:19.8.0"
+  checksum: 10c0/afba5140a664e9333941e0f9f413b70502bdae841933d267eee75b72c219eb1b8c226ab1f4858e5237e6124662149b309941bb8dd7d1f1ece30c1669478abf63
   languageName: node
   linkType: hard
 
-"@commitlint/config-angular@npm:19.7.1":
-  version: 19.7.1
-  resolution: "@commitlint/config-angular@npm:19.7.1"
+"@commitlint/config-angular@npm:19.8.0":
+  version: 19.8.0
+  resolution: "@commitlint/config-angular@npm:19.8.0"
   dependencies:
-    "@commitlint/config-angular-type-enum": "npm:^19.5.0"
-  checksum: 10c0/fc3091a642eba499ad78beee12ba8d5b6c3818a3fa2cff0ecd7cd8740c23466f7189ea672539b1d9a21cfc9c37e952b558f2782318e527f80d49e905f198021c
+    "@commitlint/config-angular-type-enum": "npm:^19.8.0"
+  checksum: 10c0/89c82a86666bb12f809e22e2ce191deb8f36f0e2f51906de9d89b46f48466bbe7f9ac4dfd5c9d94de217407ef727bf19f3189d5407afc0c59c087ab25f1c5cb7
   languageName: node
   linkType: hard
 
@@ -3150,7 +3150,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^1.9.4"
     "@commitlint/cli": "npm:19.7.1"
-    "@commitlint/config-angular": "npm:19.7.1"
+    "@commitlint/config-angular": "npm:19.8.0"
     "@nedcloarbr/biome-config": "npm:^1.7.1"
     "@nestjs/common": "npm:11.0.9"
     "@nestjs/core": "npm:11.0.9"
