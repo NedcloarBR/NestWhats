@@ -584,9 +584,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:11.0.9":
-  version: 11.0.9
-  resolution: "@nestjs/core@npm:11.0.9"
+"@nestjs/core@npm:11.0.15":
+  version: 11.0.15
+  resolution: "@nestjs/core@npm:11.0.15"
   dependencies:
     "@nuxt/opencollective": "npm:0.4.1"
     fast-safe-stringify: "npm:2.1.1"
@@ -608,7 +608,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: 10c0/b93bc7eae3d66fd37d56bb75aa22f7280a784dbe81669a00141514e611d7988bd81531dd0626e441fff30cffb562f06f8253d84f59e3428f51e2d973940e5de9
+  checksum: 10c0/ea1146724889547418ea8342d7afee08a8abf5cc1c558931a17de39f2c3af91266750a728984a930d8e2e660465b7aa25c9bec6c771e644863e178cb287ab51c
   languageName: node
   linkType: hard
 
@@ -3153,7 +3153,7 @@ __metadata:
     "@commitlint/config-angular": "npm:19.7.1"
     "@nedcloarbr/biome-config": "npm:^1.7.1"
     "@nestjs/common": "npm:11.0.9"
-    "@nestjs/core": "npm:11.0.9"
+    "@nestjs/core": "npm:11.0.15"
     "@types/node": "npm:22.13.4"
     "@types/qrcode": "npm:^1.5.5"
     globals: "npm:^15.14.0"
