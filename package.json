@@ -55,7 +55,7 @@
 		"@nedcloarbr/biome-config": "^1.7.1",
 		"@nestjs/common": "11.0.9",
 		"@nestjs/core": "11.0.9",
-		"@types/node": "22.13.4",
+		"@types/node": "22.15.2",
 		"@types/qrcode": "^1.5.5",
 		"globals": "^15.14.0",
 		"husky": "^9.1.7",
