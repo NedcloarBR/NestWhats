@@ -3,6 +3,7 @@ import { NestWhatsBaseDiscovery } from "../context";
 export interface CommandMeta {
 	name: string;
 	description: string;
+	aliases?: string[];
 }
 
 export class CommandDiscovery extends NestWhatsBaseDiscovery<CommandMeta> {
@@ -12,6 +13,10 @@ export class CommandDiscovery extends NestWhatsBaseDiscovery<CommandMeta> {
 
 	public getDescription() {
 		return this.meta.description;
+	}
+
+	public getAliases() {
+		return this.meta.aliases ?? [];
 	}
 
 	public isCommand(): this is CommandDiscovery {

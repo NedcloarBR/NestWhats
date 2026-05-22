@@ -7,14 +7,21 @@ export class CommandsService {
 
 	public readonly cache = new Map<string, CommandDiscovery>();
 
-	public add(Command: CommandDiscovery) {
-		const name = Command.getName();
+	public add(command: CommandDiscovery) {
+		const name = command.getName();
 
 		if (this.cache.has(name)) {
 			this.logger.warn(`Command : ${name} already exists`);
 		}
 
-		this.cache.set(name, Command);
+		this.cache.set(name, command);
+
+		for (const alias of command.getAliases()) {
+			if (this.cache.has(alias)) {
+				this.logger.warn(`Command alias: ${alias} already exists`);
+			}
+			this.cache.set(alias, command);
+		}
 	}
 
 	public get(name: string) {
@@ -22,6 +29,11 @@ export class CommandsService {
 	}
 
 	public remove(name: string) {
+		const command = this.cache.get(name);
+		if (!command) return;
 		this.cache.delete(name);
+		for (const alias of command.getAliases()) {
+			this.cache.delete(alias);
+		}
 	}
 }
