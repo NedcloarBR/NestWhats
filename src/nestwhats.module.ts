@@ -50,8 +50,11 @@ export class NestWhatsModule {
 			},
 		];
 
+		const exports: (typeof clientToken)[] = [clientToken];
+
 		if (!options.name) {
 			providers.push({ provide: Client, useExisting: clientToken });
+			exports.push(Client);
 		}
 
 		return {
@@ -59,7 +62,7 @@ export class NestWhatsModule {
 			global: true,
 			imports: [NestWhatsSharedModule],
 			providers,
-			exports: [clientToken],
+			exports,
 		};
 	}
 
@@ -114,8 +117,11 @@ export class NestWhatsModule {
 			},
 		];
 
+		const exports: (typeof clientToken)[] = [clientToken];
+
 		if (!options.name) {
 			providers.push({ provide: Client, useExisting: clientToken });
+			exports.push(Client);
 		}
 
 		return {
@@ -123,7 +129,7 @@ export class NestWhatsModule {
 			global: true,
 			imports: [NestWhatsSharedModule, ...(options.imports ?? [])],
 			providers,
-			exports: [clientToken],
+			exports,
 		};
 	}
 }
