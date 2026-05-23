@@ -1,6 +1,4 @@
 import { Injectable, PipeTransform, Type } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { validate } from "class-validator";
 import {
 	ARG_INDEX_METADATA,
 	type ArgIndexMeta,
@@ -14,6 +12,9 @@ export class ParseArgsPipe<T extends object>
 	public constructor(private readonly dto: Type<T>) {}
 
 	public async transform(args: string[]): Promise<T> {
+		const { plainToInstance } = await import("class-transformer");
+		const { validate } = await import("class-validator");
+
 		const metas: ArgIndexMeta[] =
 			Reflect.getMetadata(ARG_INDEX_METADATA, this.dto.prototype) ?? [];
 
