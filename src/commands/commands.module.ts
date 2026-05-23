@@ -38,16 +38,29 @@ export class CommandsModule implements OnModuleInit, OnApplicationBootstrap {
 			if (!message?.body?.length) return;
 
 			const content = message.body.toLowerCase();
-			const prefix = this.options.prefix ?? "!";
+			const globalPrefix = this.options.prefix ?? "!";
 
-			if (!prefix || !content.startsWith(prefix)) return;
+			if (globalPrefix && content.startsWith(globalPrefix)) {
+				const args = content.substring(globalPrefix.length).split(/ +/g);
+				const cmd = args.shift();
 
-			const args = content.substring(prefix.length).split(/ +/g);
-			const cmd = args.shift();
+				if (cmd) {
+					const command = this.commandsService.get(cmd);
+					if (command) return command.execute([message]);
+				}
+			}
 
-			if (!cmd) return;
+			for (const [prefix, commands] of this.commandsService.prefixCache) {
+				if (content.startsWith(prefix)) {
+					const args = content.substring(prefix.length).split(/ +/g);
+					const cmd = args.shift();
 
-			return this.commandsService.get(cmd)?.execute([message]);
+					if (cmd) {
+						const command = commands.get(cmd);
+						if (command) return command.execute([message]);
+					}
+				}
+			}
 		});
 	}
 }
