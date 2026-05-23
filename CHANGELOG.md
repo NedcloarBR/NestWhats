@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [1.1.0](https://github.com/NedcloarBR/NestWhats/compare/v1.0.3...v1.1.0) - (2026-05-23)
+
+## Features
+
+- **guards:** Add GroupOnly, DmOnly, IsAdmin and FromMe built-in guards ([8f2e0b8](https://github.com/NedcloarBR/NestWhats/commit/8f2e0b8718e96514aa2e00ef8057c8570d8f3ea2))
+- **commands:** Add typed argument parser with class-validator support ([671f3c2](https://github.com/NedcloarBR/NestWhats/commit/671f3c23556283cf84a340ec46998d39d1c7b30f))
+- **commands:** Add param decorators `@Message`(`@Msg`), `@Chat`, `@Author` and index support to `@Args` ([93fb855](https://github.com/NedcloarBR/NestWhats/commit/93fb8558126f9e7b13a61c208613567bd25a1232))
+- **commands:** Add aliases support to `@Command` decorator ([68092f9](https://github.com/NedcloarBR/NestWhats/commit/68092f9a44b293a92448836a16eb7e672daa0821))
+- Add NestWhatsGuard and NestWhatsExceptionFilter interfaces ([80adc9e](https://github.com/NedcloarBR/NestWhats/commit/80adc9ef6bed77c0afd5716bc0ddc381d5345d31))
+
 # [v1.0.3](https://github.com/NedcloarBR/NestWhats/compare/v1.0.2...v1.0.3) - (2025-02-01)
 
 ## Bug Fixes
