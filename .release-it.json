@@ -13,6 +13,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn build",
-		"after:bump": "git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ./cliff.toml -r . && git add CHANGELOG.md"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ./cliff.toml -r . && git add CHANGELOG.md"
 	}
 }
