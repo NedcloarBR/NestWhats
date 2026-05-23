@@ -80,7 +80,11 @@
 		"whatsapp-web.js": "^1.34.0"
 	},
 	"peerDependenciesMeta": {
-		"class-transformer": { "optional": true },
-		"class-validator": { "optional": true }
+		"class-transformer": {
+			"optional": true
+		},
+		"class-validator": {
+			"optional": true
+		}
 	}
 }
