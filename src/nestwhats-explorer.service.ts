@@ -40,8 +40,8 @@ export class ExplorerService<
 		);
 	}
 
-	private flatMap(callback: (wrapper: InstanceWrapper) => T[]) {
-		return this.wrappers.flatMap(callback).filter(Boolean);
+	private flatMap(callback: (wrapper: InstanceWrapper) => (T | undefined)[]) {
+		return this.wrappers.flatMap(callback).filter((item): item is T => !!item);
 	}
 
 	private filterProperties({ instance }: InstanceWrapper, metadataKey: string) {

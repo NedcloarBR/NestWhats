@@ -1,65 +1,129 @@
-import {
-	Global,
-	Logger,
-	Module,
-	OnApplicationBootstrap,
-	OnApplicationShutdown,
-	OnModuleInit,
-} from "@nestjs/common";
-import { DiscoveryModule } from "@nestjs/core";
-import { toString as QRCodeString } from "qrcode";
-import { Client, Events } from "whatsapp-web.js";
-import { CommandsModule } from "./commands/commands.module";
-import { ListenersModule } from "./listeners";
-import { ExplorerService } from "./nestwhats-explorer.service";
-import {
-	ConfigurableModuleClass,
-	NESTWHATS_MODULE_OPTIONS,
-} from "./nestwhats.module-definition";
-import * as ProvidersMap from "./providers";
+import { DynamicModule, Module, ModuleMetadata, Provider } from "@nestjs/common";
+import { Client, ClientOptions } from "whatsapp-web.js";
+import { ClientsRegistryService } from "./clients-registry.service";
+import { CommandsService } from "./commands/commands.service";
+import { ListenerRegistryService } from "./listeners/listener-registry.service";
+import { NestWhatsClientService } from "./nestwhats-client.service";
+import { NestWhatsClientOptions } from "./nestwhats-options.interface";
+import { NestWhatsSharedModule } from "./nestwhats-shared.module";
+import { getClientToken } from "./providers/client-token.util";
 
-const Providers = Object.values(ProvidersMap);
+function toClientOptions(options: NestWhatsClientOptions): ClientOptions {
+	const { name: _n, prefix: _p, ...rest } = options;
+	return rest as ClientOptions;
+}
 
-@Global()
-@Module({
-	imports: [DiscoveryModule, ListenersModule, CommandsModule],
-	providers: [ExplorerService, ...Providers],
-	exports: [
-		ListenersModule,
-		CommandsModule,
-		ExplorerService,
-		...Providers,
-		NESTWHATS_MODULE_OPTIONS,
-	],
-})
-export class NestWhatsModule
-	extends ConfigurableModuleClass
-	implements OnApplicationBootstrap, OnApplicationShutdown, OnModuleInit
-{
-	private readonly logger = new Logger(NestWhatsModule.name);
+@Module({})
+// biome-ignore lint/complexity/noStaticOnlyClass: This class is designed to only have static methods for module registration.
+export class NestWhatsModule {
+	public static forRoot(options: NestWhatsClientOptions): DynamicModule {
+		const displayName = options.name ?? "default";
+		const clientToken = getClientToken(displayName);
+		const lifecycleToken = Symbol(`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`);
 
-	public constructor(private readonly client: Client) {
-		super();
+		const providers: Provider[] = [
+			{
+				provide: clientToken,
+				useValue: new Client(toClientOptions(options)),
+			},
+			{
+				provide: lifecycleToken,
+				useFactory: (
+					client: Client,
+					commandsService: CommandsService,
+					listenerRegistry: ListenerRegistryService,
+					clientsRegistry: ClientsRegistryService,
+				) =>
+					new NestWhatsClientService(
+						client,
+						options,
+						commandsService,
+						listenerRegistry,
+						clientsRegistry,
+					),
+				inject: [
+					clientToken,
+					CommandsService,
+					ListenerRegistryService,
+					ClientsRegistryService,
+				],
+			},
+		];
+
+		if (!options.name) {
+			providers.push({ provide: Client, useExisting: clientToken });
+		}
+
+		return {
+			module: NestWhatsModule,
+			global: true,
+			imports: [NestWhatsSharedModule],
+			providers,
+			exports: [clientToken],
+		};
 	}
 
-	public onApplicationBootstrap(): void {
-		this.client.initialize();
-	}
+	public static forRootAsync(options: {
+		name?: string;
+		imports?: ModuleMetadata["imports"];
+		useFactory: (
+			...args: any[]
+		) => Promise<NestWhatsClientOptions> | NestWhatsClientOptions;
+		inject?: any[];
+	}): DynamicModule {
+		const displayName = options.name ?? "default";
+		const clientToken = getClientToken(displayName);
+		const optionsToken = Symbol(`NESTWHATS::OPTIONS_${displayName.toUpperCase()}`);
+		const lifecycleToken = Symbol(`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`);
 
-	public onApplicationShutdown(signal?: string): void {
-		this.client.destroy();
-	}
+		const providers: Provider[] = [
+			{
+				provide: optionsToken,
+				useFactory: options.useFactory,
+				inject: options.inject ?? [],
+			},
+			{
+				provide: clientToken,
+				useFactory: (clientOptions: NestWhatsClientOptions) =>
+					new Client(toClientOptions(clientOptions)),
+				inject: [optionsToken],
+			},
+			{
+				provide: lifecycleToken,
+				useFactory: (
+					client: Client,
+					clientOptions: NestWhatsClientOptions,
+					commandsService: CommandsService,
+					listenerRegistry: ListenerRegistryService,
+					clientsRegistry: ClientsRegistryService,
+				) =>
+					new NestWhatsClientService(
+						client,
+						{ ...clientOptions, name: options.name },
+						commandsService,
+						listenerRegistry,
+						clientsRegistry,
+					),
+				inject: [
+					clientToken,
+					optionsToken,
+					CommandsService,
+					ListenerRegistryService,
+					ClientsRegistryService,
+				],
+			},
+		];
 
-	public onModuleInit(): void {
-		this.client.once(Events.QR_RECEIVED, (qr) => {
-			QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
-				if (err) {
-					this.logger.error(`Error generating QR code: ${err.message}`);
-					return;
-				}
-				this.logger.verbose("Scan the QR code below to authenticate:");
-				console.log(url);
-			});
-		});
+		if (!options.name) {
+			providers.push({ provide: Client, useExisting: clientToken });
+		}
+
+		return {
+			module: NestWhatsModule,
+			global: true,
+			imports: [NestWhatsSharedModule, ...(options.imports ?? [])],
+			providers,
+			exports: [clientToken],
+		};
 	}
 }

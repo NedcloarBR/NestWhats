@@ -1,4 +1,4 @@
-export const ARG_INDEX_METADATA = Symbol("nestwhats::arg_index");
+export const ARG_INDEX_METADATA = Symbol("NESTWHATS::ARG_INDEX_METADATA");
 
 export interface ArgIndexOptions {
 	rest?: boolean;

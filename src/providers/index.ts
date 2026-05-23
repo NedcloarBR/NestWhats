@@ -1,1 +1,1 @@
-export * from "./client.provider";
+export * from "./client-token.util";

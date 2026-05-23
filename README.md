@@ -7,17 +7,21 @@
 <h3 align=center> A <b><a href="https://wwebjs.dev/">whatsapp-web.js</a></b> wrapper for <b><a href="https://nestjs.com">NestJS</a></b> to create <b><a href="https://www.whatsapp.com/">WhatsApp</a></b> bots</h3>
 
 <p align="center">
-  <a href="#❓ About">About</a>
+  <a href="#-about">About</a>
   •
-  <a href="⬇️ Installation">Installation</a>
+  <a href="#-installation">Installation</a>
   •
-  <a href="⚙️ Usage">Usage</a>
+  <a href="#-usage">Usage</a>
   •
-  <a href="📝 To-Do">To-Do</a>
+  <a href="#-multiple-clients">Multiple Clients</a>
   •
-  <a href="#📖 License">License</a>
+  <a href="#-commands">Commands</a>
   •
-  <a href="#🗞️ Credits">Credits</a>
+  <a href="#-to-do">To-Do</a>
+  •
+  <a href="#-license">License</a>
+  •
+  <a href="#️-credits">Credits</a>
 </p>
 
 ## ❓ About
@@ -41,9 +45,11 @@ $ pnpm add nestwhats whatsapp-web.js
 
 ## ⚙️ Usage
 
-Once the installation process is complete, we can import the `NestWhatsModule` into the root `AppModule`:
+### Single client
 
-```TypeScript
+Import `NestWhatsModule` into the root `AppModule`:
+
+```typescript
 import { NestWhatsModule } from 'nestwhats';
 import { Module } from '@nestjs/common';
 import { AppUpdate } from './app.update';
@@ -51,7 +57,7 @@ import { AppUpdate } from './app.update';
 @Module({
   imports: [
     NestWhatsModule.forRoot({
-      prefix: "!"
+      prefix: '!'
     })
   ],
   providers: [AppUpdate]
@@ -59,36 +65,175 @@ import { AppUpdate } from './app.update';
 export class AppModule {}
 ```
 
-Then create `app.update.ts` file and add `On`/`Once` decorators for handling whatsapp-web.js events:
+Use `@On`/`@Once` decorators to handle whatsapp-web.js events, and inject the `Client` directly:
 
-```TypeScript
+```typescript
 import { Injectable, Logger } from '@nestjs/common';
 import { Context, On, Once, ContextOf } from 'nestwhats';
-import { Client, Events } from 'whatsapp-web.js';
+import { Client } from 'whatsapp-web.js';
 
 @Injectable()
 export class AppUpdate {
   private readonly logger = new Logger(AppUpdate.name);
+
   public constructor(private readonly client: Client) {}
-  
-  @Once("ready")
+
+  @Once('ready')
   public onReady() {
     this.logger.log(`Bot logged in as ${this.client.info.pushname}`);
   }
-  
-  @On("message_create")
-  public onWarn(@Context() [message]: ContextOf<'message_create'>) {
+
+  @On('message_create')
+  public onMessage(@Context() [message]: ContextOf<'message_create'>) {
     this.logger.log(message);
   }
 }
 ```
 
-Whenever you need to handle any event data, use the `Context` decorator.
+### Event options
 
-If you want to fully dive into NestWhats, check out these resources:
+Both `@On` and `@Once` accept an optional second argument to filter which clients trigger the listener.
 
-- [NestJS](https://nestjs.com) - A progressive framework for creating well-architectured applications.
-- [whatsapp-web.js](https://wwebjs.dev/) - A WhatsApp client library for NodeJS that connects through the WhatsApp Web browser app
+| Option   | Type                   | Description                                              |
+|----------|------------------------|----------------------------------------------------------|
+| `client` | `string \| string[]`   | Client name(s) that should trigger this listener. When omitted, all clients trigger it. |
+
+### Async configuration
+
+```typescript
+NestWhatsModule.forRootAsync({
+  imports: [ConfigModule],
+  useFactory: (config: ConfigService) => ({
+    prefix: config.get('BOT_PREFIX'),
+  }),
+  inject: [ConfigService],
+})
+```
+
+## 👥 Multiple Clients
+
+Register each client independently with its own `forRoot` call. NestJS deduplicates shared infrastructure automatically.
+
+```typescript
+import { NestWhatsModule } from 'nestwhats';
+import { Module } from '@nestjs/common';
+
+@Module({
+  imports: [
+    NestWhatsModule.forRoot({ name: 'PERSONAL', prefix: '!' }),
+    NestWhatsModule.forRoot({ name: 'BUSINESS', prefix: '/' }),
+  ],
+})
+export class AppModule {}
+```
+
+Inject a specific client using `@InjectClient(name)`:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectClient } from 'nestwhats';
+import { Client } from 'whatsapp-web.js';
+
+@Injectable()
+export class MyService {
+  public constructor(
+    @InjectClient('PERSONAL') private readonly personal: Client,
+    @InjectClient('BUSINESS') private readonly business: Client,
+  ) {}
+
+  public async sendFromBusiness(chatId: string, text: string) {
+    await this.business.sendMessage(chatId, text);
+  }
+}
+```
+
+For async registration of a named client, pass `name` as a static option:
+
+```typescript
+NestWhatsModule.forRootAsync({
+  name: 'BUSINESS',
+  imports: [ConfigModule],
+  useFactory: (config: ConfigService) => ({
+    prefix: config.get('BUSINESS_PREFIX'),
+  }),
+  inject: [ConfigService],
+})
+```
+
+> [!NOTE]
+> When registering a single unnamed client, `name` defaults to `'default'` and the `Client` token remains available for injection without `@InjectClient`, preserving backward compatibility.
+
+### Filtering events by client
+
+When using multiple clients, listeners fire on all of them by default. Use the `client` option to restrict a listener to one or more specific clients:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { On, Once, Context, ContextOf } from 'nestwhats';
+
+@Injectable()
+export class AppUpdate {
+  // fires on every client
+  @On('message_create')
+  public onAnyMessage(@Context() [message]: ContextOf<'message_create'>) {}
+
+  // fires only on PERSONAL
+  @On('message_create', { client: 'PERSONAL' })
+  public onPersonalMessage(@Context() [message]: ContextOf<'message_create'>) {}
+
+  // fires on PERSONAL and BUSINESS, but not a third client
+  @On('message_create', { client: ['PERSONAL', 'BUSINESS'] })
+  public onTwoClients(@Context() [message]: ContextOf<'message_create'>) {}
+
+  // once listener scoped to a single client
+  @Once('ready', { client: 'BUSINESS' })
+  public onBusinessReady() {}
+}
+```
+
+## 📜 Commands
+
+Register a command handler with the `@Command` decorator. The global `prefix` defined in `forRoot` applies to all commands by default.
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { Command, Message, Author } from 'nestwhats';
+import { Message as WWebMessage } from 'whatsapp-web.js';
+
+@Injectable()
+export class BotUpdate {
+  @Command({ name: 'ping', description: 'Replies with pong' })
+  public async ping(@Message() message: WWebMessage) {
+    await message.reply('pong!');
+  }
+
+  @Command({ name: 'hello', description: 'Greets the author', aliases: ['hi', 'hey'] })
+  public async hello(@Author() author: string) {
+    console.log(`Hello, ${author}!`);
+  }
+}
+```
+
+### Per-command prefix
+
+Override the global prefix for a specific command using the `prefix` option:
+
+```typescript
+@Command({ name: 'start', description: 'Start command', prefix: '/' })
+public async start(@Message() message: WWebMessage) {
+  // responds to "/start" regardless of the global prefix
+  await message.reply('Starting...');
+}
+```
+
+### Command options
+
+| Option        | Type       | Description                                        |
+|---------------|------------|----------------------------------------------------|
+| `name`        | `string`   | The command name (matched after the prefix)        |
+| `description` | `string`   | A short description of the command                 |
+| `aliases`     | `string[]` | Additional names that trigger the same command     |
+| `prefix`      | `string`   | Overrides the global prefix for this command only  |
 
 ## 📝 To-Do
 

@@ -1,5 +1,6 @@
 import { ClientOptions } from "whatsapp-web.js";
 
-export interface NestWhatsModuleOptions extends ClientOptions {
+export interface NestWhatsClientOptions extends ClientOptions {
+	name?: string;
 	prefix?: string;
 }
