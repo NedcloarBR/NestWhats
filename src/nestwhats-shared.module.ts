@@ -1,9 +1,9 @@
 import { Global, Module } from "@nestjs/common";
 import { DiscoveryModule } from "@nestjs/core";
+import { ClientsRegistryService } from "./clients-registry.service";
 import { CommandsModule } from "./commands/commands.module";
 import { ListenersModule } from "./listeners/listeners.module";
 import { ExplorerService } from "./nestwhats-explorer.service";
-import { ClientsRegistryService } from "./providers/clients-registry.service";
 
 @Global()
 @Module({

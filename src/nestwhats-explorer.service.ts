@@ -17,15 +17,6 @@ export class ExplorerService<
 > extends Reflector {
 	private readonly moduleParamsFactory = new NestWhatsParamsFactory();
 
-	private readonly wrappers = this.discoveryService
-		.getProviders()
-		.filter((wrapper) => {
-			const { instance } = wrapper;
-			const prototype = instance ? Object.getPrototypeOf(instance) : null;
-
-			return instance && prototype && wrapper.isDependencyTreeStatic();
-		});
-
 	public constructor(
 		private readonly discoveryService: DiscoveryService,
 		private readonly externalContextCreator: ExternalContextCreator,
@@ -35,13 +26,15 @@ export class ExplorerService<
 	}
 
 	public explore(metadataKey: string): T[] {
-		return this.flatMap((wrapper) =>
-			this.filterProperties(wrapper, metadataKey),
-		);
-	}
+		const wrappers = this.discoveryService.getProviders().filter((wrapper) => {
+			const { instance } = wrapper;
+			const prototype = instance ? Object.getPrototypeOf(instance) : null;
+			return instance && prototype && wrapper.isDependencyTreeStatic();
+		});
 
-	private flatMap(callback: (wrapper: InstanceWrapper) => (T | undefined)[]) {
-		return this.wrappers.flatMap(callback).filter((item): item is T => !!item);
+		return wrappers
+			.flatMap((wrapper) => this.filterProperties(wrapper, metadataKey))
+			.filter((item): item is T => !!item);
 	}
 
 	private filterProperties({ instance }: InstanceWrapper, metadataKey: string) {
@@ -68,7 +61,7 @@ export class ExplorerService<
 
 	private createContextCallback(
 		instance: object,
-		prototype: unknown,
+		prototype: Record<string, (...args: any[]) => any>,
 		methodName: string,
 	) {
 		return this.externalContextCreator.create<

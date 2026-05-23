@@ -6,10 +6,10 @@ import {
 } from "@nestjs/common";
 import { toString as QRCodeString } from "qrcode";
 import { Client, Events } from "whatsapp-web.js";
+import { ClientsRegistryService } from "./clients-registry.service";
 import { CommandsService } from "./commands/commands.service";
 import { ListenerRegistryService } from "./listeners/listener-registry.service";
 import { NestWhatsClientOptions } from "./nestwhats-options.interface";
-import { ClientsRegistryService } from "./providers/clients-registry.service";
 
 export class NestWhatsClientService
 	implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
