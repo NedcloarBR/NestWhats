@@ -6,7 +6,10 @@ export class CommandsService {
 	private readonly logger = new Logger(CommandsService.name);
 
 	public readonly cache = new Map<string, CommandDiscovery>();
-	public readonly prefixCache = new Map<string, Map<string, CommandDiscovery>>();
+	public readonly prefixCache = new Map<
+		string,
+		Map<string, CommandDiscovery>
+	>();
 
 	public add(command: CommandDiscovery) {
 		const customPrefix = command.getPrefix();
@@ -40,7 +43,7 @@ export class CommandsService {
 			this.prefixCache.set(prefix, new Map());
 		}
 
-		const map = this.prefixCache.get(prefix)!;
+		const map = this.prefixCache.get(prefix) as Map<string, CommandDiscovery>;
 		const name = command.getName();
 
 		if (map.has(name)) {

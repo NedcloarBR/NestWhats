@@ -1,4 +1,9 @@
-import { DynamicModule, Module, ModuleMetadata, Provider } from "@nestjs/common";
+import {
+	DynamicModule,
+	Module,
+	ModuleMetadata,
+	Provider,
+} from "@nestjs/common";
 import { Client, ClientOptions } from "whatsapp-web.js";
 import { ClientsRegistryService } from "./clients-registry.service";
 import { CommandsService } from "./commands/commands.service";
@@ -19,7 +24,9 @@ export class NestWhatsModule {
 	public static forRoot(options: NestWhatsClientOptions): DynamicModule {
 		const displayName = options.name ?? "default";
 		const clientToken = getClientToken(displayName);
-		const lifecycleToken = Symbol(`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`);
+		const lifecycleToken = Symbol(
+			`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`,
+		);
 
 		const providers: Provider[] = [
 			{
@@ -76,8 +83,12 @@ export class NestWhatsModule {
 	}): DynamicModule {
 		const displayName = options.name ?? "default";
 		const clientToken = getClientToken(displayName);
-		const optionsToken = Symbol(`NESTWHATS::OPTIONS_${displayName.toUpperCase()}`);
-		const lifecycleToken = Symbol(`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`);
+		const optionsToken = Symbol(
+			`NESTWHATS::OPTIONS_${displayName.toUpperCase()}`,
+		);
+		const lifecycleToken = Symbol(
+			`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`,
+		);
 
 		const providers: Provider[] = [
 			{

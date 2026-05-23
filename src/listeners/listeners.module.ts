@@ -1,8 +1,8 @@
 import { Global, Module, OnModuleInit } from "@nestjs/common";
 import { ExplorerService } from "../nestwhats-explorer.service";
 import { Listener } from "./decorators";
-import { ListenerDiscovery } from "./listener.discovery";
 import { ListenerRegistryService } from "./listener-registry.service";
+import { ListenerDiscovery } from "./listener.discovery";
 
 @Global()
 @Module({

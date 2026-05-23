@@ -17,7 +17,9 @@ export class ClientsRegistryService {
 		const token = getClientToken(entry.name);
 
 		if (this.registry.has(token)) {
-			this.logger.warn(`Client "${entry.name}" is already registered and will be overwritten`);
+			this.logger.warn(
+				`Client "${entry.name}" is already registered and will be overwritten`,
+			);
 		}
 
 		this.registry.set(token, entry);
