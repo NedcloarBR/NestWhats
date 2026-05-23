@@ -1,3 +1,4 @@
+export * from "./arg-index.decorator";
 export * from "./arguments.decorator";
 export * from "./author.decorator";
 export * from "./chat.decorator";

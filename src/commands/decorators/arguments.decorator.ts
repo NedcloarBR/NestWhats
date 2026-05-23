@@ -1,5 +1,6 @@
-import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import { ExecutionContext, Type, createParamDecorator } from "@nestjs/common";
 import { CommandContext, NestWhatsExecutionContext } from "../../context";
+import { ParseArgsPipe } from "../pipes/parse-args.pipe";
 
 export const Arguments = createParamDecorator(
 	(index: number | undefined, context: ExecutionContext) => {
@@ -15,3 +16,6 @@ export const Arguments = createParamDecorator(
 );
 
 export const Args = Arguments;
+
+export const ParseArgs = <T extends object>(dto: Type<T>) =>
+	Args(new ParseArgsPipe(dto));
