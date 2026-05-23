@@ -5,6 +5,7 @@ export interface CommandMeta {
 	description: string;
 	aliases?: string[];
 	prefix?: string;
+	client?: string | string[];
 }
 
 export class CommandDiscovery extends NestWhatsBaseDiscovery<CommandMeta> {
@@ -22,6 +23,12 @@ export class CommandDiscovery extends NestWhatsBaseDiscovery<CommandMeta> {
 
 	public getPrefix() {
 		return this.meta.prefix;
+	}
+
+	public getClients(): string[] | undefined {
+		const { client } = this.meta;
+		if (!client) return undefined;
+		return Array.isArray(client) ? client : [client];
 	}
 
 	public isCommand(): this is CommandDiscovery {

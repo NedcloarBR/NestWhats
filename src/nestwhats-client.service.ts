@@ -73,7 +73,11 @@ export class NestWhatsClientService
 
 				if (cmd) {
 					const command = this.commandsService.get(cmd);
-					if (command) return command.execute([message]);
+					if (command) {
+						const clients = command.getClients();
+						if (!clients || clients.includes(this.name))
+							return command.execute([message]);
+					}
 				}
 			}
 
@@ -84,7 +88,11 @@ export class NestWhatsClientService
 
 					if (cmd) {
 						const command = commands.get(cmd);
-						if (command) return command.execute([message]);
+						if (command) {
+							const clients = command.getClients();
+							if (!clients || clients.includes(this.name))
+								return command.execute([message]);
+						}
 					}
 				}
 			}
