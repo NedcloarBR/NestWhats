@@ -38,8 +38,8 @@
 	],
 	"scripts": {
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
-		"changelog": "git cliff --prepend ./CHANGELOG.md -l --current -c ./cliff.toml -r .",
-		"publish:npm": "yarn build && release-it",
+		"changelog": "git cliff --prepend ./CHANGELOG.md --latest -c ./cliff.toml -r .",
+		"publish:npm": "release-it",
 		"format": "yarn biome format --write ./",
 		"lint": "yarn biome lint ./",
 		"check": "yarn biome check --write ./",

@@ -1,11 +1,18 @@
 {
 	"git": {
-		"commitMessage": "chore: release v${version}"
+		"commitMessage": "chore: release v${version}",
+		"requireBranch": "master",
+		"requireCommits": true
 	},
 	"github": {
-		"release": true
+		"release": true,
+		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ./cliff.toml -r ."
+	},
+	"npm": {
+		"publish": true
 	},
 	"hooks": {
-		"after:git:release": "yarn changelog"
+		"before:bump": "yarn build",
+		"after:bump": "git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ./cliff.toml -r . && git add CHANGELOG.md"
 	}
 }
