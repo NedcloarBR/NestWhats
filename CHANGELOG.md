@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.0.0](https://github.com/NedcloarBR/NestWhats/compare/v1.1.0...v2.0.0) - (2026-05-23)
+
+## Bug Fixes
+
+- **explorer:** Defer provider discovery to explore() call time ([0ec1475](https://github.com/NedcloarBR/NestWhats/commit/0ec14756545142fe8dd2dd66ffe0a4309c6f1808))
+
+## Features
+
+- Add multi-client support with per-client event filtering ([eaffee2](https://github.com/NedcloarBR/NestWhats/commit/eaffee27a8c987c29caf3c5bf06298734d3d445e))
+- **commands:** Add per-command prefix support ([45fc91d](https://github.com/NedcloarBR/NestWhats/commit/45fc91db890f318398040084d9e3d63b6705f266))
+
 # [1.1.0](https://github.com/NedcloarBR/NestWhats/compare/v1.0.3...v1.1.0) - (2026-05-23)
 
 ## Features
