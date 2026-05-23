@@ -226,14 +226,43 @@ public async start(@Message() message: WWebMessage) {
 }
 ```
 
+### Filtering commands by client
+
+Use the `client` option to restrict a command to one or more specific clients. Commands without `client` respond on all clients.
+
+```typescript
+// responds on every client
+@Command({ name: 'ping', description: 'Ping' })
+public async ping(@Message() message: WWebMessage) {}
+
+// responds only on PERSONAL
+@Command({ name: 'status', description: 'Personal status', client: 'PERSONAL' })
+public async status(@Message() message: WWebMessage) {}
+
+// responds on PERSONAL and BUSINESS, but not a third client
+@Command({ name: 'info', description: 'Info', client: ['PERSONAL', 'BUSINESS'] })
+public async info(@Message() message: WWebMessage) {}
+```
+
 ### Command options
 
-| Option        | Type       | Description                                        |
-|---------------|------------|----------------------------------------------------|
-| `name`        | `string`   | The command name (matched after the prefix)        |
-| `description` | `string`   | A short description of the command                 |
-| `aliases`     | `string[]` | Additional names that trigger the same command     |
-| `prefix`      | `string`   | Overrides the global prefix for this command only  |
+| Option        | Type                   | Description                                                               |
+|---------------|------------------------|---------------------------------------------------------------------------|
+| `name`        | `string`               | The command name (matched after the prefix)                               |
+| `description` | `string`               | A short description of the command                                        |
+| `aliases`     | `string[]`             | Additional names that trigger the same command                            |
+| `prefix`      | `string`               | Overrides the global prefix for this command only                         |
+| `client`      | `string \| string[]`   | Client name(s) that should handle this command. When omitted, all clients handle it. |
+
+### ParseArgsPipe
+
+`ParseArgsPipe` requires `class-transformer` and `class-validator`, which are optional peer dependencies. Install them only if you use the pipe:
+
+```bash
+$ npm i class-transformer class-validator
+$ yarn add class-transformer class-validator
+$ pnpm add class-transformer class-validator
+```
 
 ## 📝 To-Do
 
