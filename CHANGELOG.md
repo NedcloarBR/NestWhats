@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.0.4](https://github.com/NedcloarBR/NestWhats/compare/v2.0.0...v2.0.4) - (2026-05-23)
+
+## Bug Fixes
+
+- **release:** Reformat package.json after version bump ([de3b487](https://github.com/NedcloarBR/NestWhats/commit/de3b4874a0802bbf1fe61c80e8f38bead4a9eeae))
+- **pipes:** Lazy-load optional peer deps in ParseArgsPipe ([ea97f37](https://github.com/NedcloarBR/NestWhats/commit/ea97f37de148041b2e3d1ec0a9baea42805a0494))
+- **module:** Export Client token for default client backward compat ([9f57b48](https://github.com/NedcloarBR/NestWhats/commit/9f57b48fc4c1622aec20c953c27579169b959e13))
+
+## Features
+
+- **commands:** Add per-client command filtering ([f38a2d3](https://github.com/NedcloarBR/NestWhats/commit/f38a2d35770ac115fec44df5867dda2f0f9ec72b))
+
 # [2.0.0](https://github.com/NedcloarBR/NestWhats/compare/v1.1.0...v2.0.0) - (2026-05-23)
 
 ## Bug Fixes
