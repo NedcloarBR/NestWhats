@@ -4,9 +4,12 @@ import {
 	OnApplicationShutdown,
 	OnModuleInit,
 } from "@nestjs/common";
-import { toString as QRCodeString } from "qrcode";
+import { toString as QRCodeString, toDataURL } from "qrcode";
 import { Client, Events } from "whatsapp-web.js";
-import { ClientsRegistryService } from "./clients-registry.service";
+import {
+	ClientStatus,
+	ClientsRegistryService,
+} from "./clients-registry.service";
 import { CommandsService } from "./commands/commands.service";
 import { ListenerRegistryService } from "./listeners/listener-registry.service";
 import { NestWhatsClientOptions } from "./nestwhats-options.interface";
@@ -17,6 +20,7 @@ export class NestWhatsClientService
 	private readonly logger = new Logger(NestWhatsClientService.name);
 	private readonly name: string;
 	private readonly prefix: string;
+	private readonly printQR: boolean;
 
 	public constructor(
 		private readonly client: Client,
@@ -27,6 +31,7 @@ export class NestWhatsClientService
 	) {
 		this.name = options.name ?? "default";
 		this.prefix = options.prefix ?? "!";
+		this.printQR = options.printQR ?? true;
 	}
 
 	public onModuleInit(): void {
@@ -36,19 +41,45 @@ export class NestWhatsClientService
 			prefix: this.prefix,
 		});
 
-		this.client.once(Events.QR_RECEIVED, (qr) => {
-			QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
-				if (err) {
-					this.logger.error(
-						`[${this.name}] Error generating QR code: ${err.message}`,
+		this.client.on(Events.QR_RECEIVED, async (qr) => {
+			const dataUrl = await toDataURL(qr);
+			this.clientsRegistry.updateStatus(
+				this.name,
+				ClientStatus.QrReceived,
+				dataUrl,
+			);
+
+			if (this.printQR) {
+				QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
+					if (err) {
+						this.logger.error(
+							`[${this.name}] Error generating QR code: ${err.message}`,
+						);
+						return;
+					}
+					this.logger.verbose(
+						`[${this.name}] Scan the QR code below to authenticate:`,
 					);
-					return;
-				}
-				this.logger.verbose(
-					`[${this.name}] Scan the QR code below to authenticate:`,
-				);
-				console.log(url);
-			});
+					console.log(url);
+				});
+			}
+		});
+
+		this.client.once(Events.AUTHENTICATED, () => {
+			this.clientsRegistry.updateStatus(this.name, ClientStatus.Authenticated);
+		});
+
+		this.client.once(Events.READY, () => {
+			this.clientsRegistry.updateStatus(this.name, ClientStatus.Ready);
+			this.clientsRegistry.updateInfo(
+				this.name,
+				this.client.info.pushname,
+				this.client.info.wid.user,
+			);
+		});
+
+		this.client.on(Events.DISCONNECTED, () => {
+			this.clientsRegistry.updateStatus(this.name, ClientStatus.Disconnected);
 		});
 	}
 
@@ -98,7 +129,11 @@ export class NestWhatsClientService
 			}
 		});
 
-		this.client.initialize();
+		this.client.initialize().catch((err: unknown) => {
+			this.logger.error(
+				`[${this.name}] Client initialization failed: ${err instanceof Error ? err.message : String(err)}`,
+			);
+		});
 	}
 
 	public onApplicationShutdown(): void {
