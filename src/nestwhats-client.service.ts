@@ -136,7 +136,9 @@ export class NestWhatsClientService
 		});
 	}
 
-	public onApplicationShutdown(): void {
-		this.client.destroy();
+	public async onApplicationShutdown(): Promise<void> {
+		this.logger.log(`[${this.name}] Destroying client…`);
+		await this.client.destroy();
+		this.logger.log(`[${this.name}] Client destroyed`);
 	}
 }
