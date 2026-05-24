@@ -136,3 +136,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Nx
+.nx/cache
+.nx/workspace-data
+
+# Monorepo package outputs
+packages/*/dist
