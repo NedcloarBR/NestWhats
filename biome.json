@@ -4,9 +4,6 @@
 		"@nedcloarbr/biome-config/nestjs",
 		"@nedcloarbr/biome-config/ignore"
 	],
-	"files": {
-		"include": ["packages/*/src/**", "packages/*/test/**"]
-	},
 	"linter": {
 		"rules": {
 			"style": {
