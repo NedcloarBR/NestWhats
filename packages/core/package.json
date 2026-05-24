@@ -20,7 +20,7 @@
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"files": ["dist", "README.md", "LICENSE"],
+	"files": ["dist", "README.md", "License"],
 	"keywords": [
 		"nest",
 		"nestjs",
