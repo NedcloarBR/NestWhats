@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.1.0](https://github.com/NedcloarBR/NestWhats/compare/v2.0.4...v2.1.0) - (2026-05-24)
+
 # [2.0.4](https://github.com/NedcloarBR/NestWhats/compare/v2.0.0...v2.0.4) - (2026-05-23)
 
 ## Bug Fixes
