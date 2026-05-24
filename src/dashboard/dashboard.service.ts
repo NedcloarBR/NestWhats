@@ -61,8 +61,18 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		});
 	}
 
-	public onApplicationShutdown(): void {
-		this.server?.close();
+	public onApplicationShutdown(): Promise<void> {
+		return new Promise((resolve) => {
+			if (!this.server) {
+				resolve();
+				return;
+			}
+			this.logger.log("Closing dashboard server…");
+			this.server.close(() => {
+				this.logger.log("Dashboard server closed");
+				resolve();
+			});
+		});
 	}
 
 	private checkAuth(req: IncomingMessage): boolean {
