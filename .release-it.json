@@ -6,13 +6,14 @@
 	},
 	"github": {
 		"release": true,
-		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ./cliff.toml -r ."
+		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ./cliff.toml -r .",
+		"assets": ["nestwhats-*.tgz"]
 	},
 	"npm": {
 		"publish": true
 	},
 	"hooks": {
 		"before:bump": "yarn build",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ./cliff.toml -r . && git add CHANGELOG.md"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ./cliff.toml -r . && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
 	}
 }
