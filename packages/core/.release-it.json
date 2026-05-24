@@ -12,8 +12,7 @@
 		"assets": ["nestwhats-*.tgz"]
 	},
 	"npm": {
-		"publish": true,
-		"access": "public"
+		"publish": true
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build core",

@@ -12,8 +12,7 @@
 		"assets": ["nestwhats-dashboard-*.tgz"]
 	},
 	"npm": {
-		"publish": true,
-		"access": "public"
+		"publish": true
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build dashboard",
