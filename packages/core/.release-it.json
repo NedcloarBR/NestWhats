@@ -1,0 +1,21 @@
+{
+	"git": {
+		"commitMessage": "chore: release v${version}",
+		"requireBranch": "master",
+		"requireCommits": true,
+		"tagName": "v${version}"
+	},
+	"github": {
+		"release": true,
+		"releaseName": "nestwhats v${version}",
+		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/core/**'",
+		"assets": ["nestwhats-*.tgz"]
+	},
+	"npm": {
+		"publish": true
+	},
+	"hooks": {
+		"before:bump": "yarn build",
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag v${version} --unreleased -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
+	}
+}

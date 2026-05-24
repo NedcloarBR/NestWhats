@@ -1,0 +1,25 @@
+{
+	"name": "dashboard",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/dashboard/src",
+	"projectType": "library",
+	"tags": ["scope:dashboard", "type:library"],
+	"targets": {
+		"build": {
+			"executor": "nx:run-commands",
+			"outputs": ["{projectRoot}/dist"],
+			"dependsOn": ["^build"],
+			"options": {
+				"command": "rimraf dist && tsc -p tsconfig.build.json",
+				"cwd": "{projectRoot}"
+			}
+		},
+		"typecheck": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "tsc -p tsconfig.build.json --noEmit",
+				"cwd": "{projectRoot}"
+			}
+		}
+	}
+}

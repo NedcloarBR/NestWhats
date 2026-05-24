@@ -6,7 +6,7 @@ import {
 	OnApplicationShutdown,
 	OnModuleInit,
 } from "@nestjs/common";
-import { ClientsRegistryService } from "../clients-registry.service";
+import { ClientsRegistryService } from "nestwhats";
 import type { NestWhatsDashboardOptions } from "./dashboard-options.interface";
 import { DASHBOARD_OPTIONS } from "./dashboard.constants";
 import { getDashboardHtml } from "./dashboard.html";

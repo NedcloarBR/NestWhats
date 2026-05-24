@@ -1,0 +1,21 @@
+{
+	"git": {
+		"commitMessage": "chore(dashboard): release dashboard-v${version}",
+		"requireBranch": "master",
+		"requireCommits": true,
+		"tagName": "dashboard-v${version}"
+	},
+	"github": {
+		"release": true,
+		"releaseName": "@nestwhats/dashboard v${version}",
+		"releaseNotes": "git cliff --tag dashboard-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**'",
+		"assets": ["nestwhats-dashboard-*.tgz"]
+	},
+	"npm": {
+		"publish": true
+	},
+	"hooks": {
+		"before:bump": "yarn build",
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag dashboard-v${version} --unreleased -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' && git add CHANGELOG.md && rm -f nestwhats-dashboard-*.tgz && npm pack"
+	}
+}
