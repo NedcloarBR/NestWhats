@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.1.1](https://github.com/NedcloarBR/NestWhats/compare/v2.1.0...v2.1.1) - (2026-05-24)
+
+## Bug Fixes
+
+- Commit history and bump version to v2.1.0 ([2f9c717](https://github.com/NedcloarBR/NestWhats/commit/2f9c7174320df92fee263b9b26f073f52c73a762))
+
+## Features
+
+- Implement graceful shutdown for clients and dashboard server ([414e4d7](https://github.com/NedcloarBR/NestWhats/commit/414e4d78541fc15eec3f1e76a40454395c482266))
+- Implement graceful shutdown for clients and dashboard server ([fe408a7](https://github.com/NedcloarBR/NestWhats/commit/fe408a78efd2cf233a120cd113a8c083a6610aff))
+
 # [2.0.4](https://github.com/NedcloarBR/NestWhats/compare/v2.0.0...v2.0.4) - (2026-05-23)
 
 ## Bug Fixes
