@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.2.0](https://github.com/NedcloarBR/NestWhats/compare/v2.1.1...v2.2.0) - (2026-05-24)
+
+## Bug Fixes
+
+- **release:** Remove biome files.include restriction that blocked package.json formatting in release hook ([1e65500](https://github.com/NedcloarBR/NestWhats/commit/1e65500185a86056e6ab66412184eb7d179342b7))
+
+## Features
+
+- Extract packages with Nx project configs and per-package release ([aa3baa6](https://github.com/NedcloarBR/NestWhats/commit/aa3baa6f1ee80f23343569042dec3115d587c68c))
+
 # [2.1.1](https://github.com/NedcloarBR/NestWhats/compare/v2.1.0...v2.1.1) - (2026-05-24)
 
 ## Bug Fixes
