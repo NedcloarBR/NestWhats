@@ -1,4 +1,4 @@
-import { IncomingMessage, Server, createServer } from "node:http";
+import { IncomingMessage, Server, ServerResponse, createServer } from "node:http";
 import {
 	Inject,
 	Injectable,
@@ -15,6 +15,8 @@ import { getDashboardHtml } from "./dashboard.html";
 export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 	private readonly logger = new Logger("NestWhatsDashboard");
 	private server: Server | undefined;
+	private readonly sseClients = new Set<ServerResponse>();
+	private unsubscribeRegistry?: () => void;
 
 	public constructor(
 		@Inject(DASHBOARD_OPTIONS)
@@ -25,6 +27,10 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 	public onModuleInit(): void {
 		const port = this.options.port ?? 4000;
 		const path = this.options.path ?? "nestwhats";
+
+		this.unsubscribeRegistry = this.clientsRegistry.subscribe(() =>
+			this.broadcastSse(),
+		);
 
 		this.server = createServer((req, res) => {
 			if (!this.checkAuth(req)) {
@@ -44,7 +50,29 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 				return;
 			}
 
-			if (url === `/${path}` || url === `/${path}/` || url === "/") {
+			if (url === `/${path}/events` || url === "/events") {
+				res.writeHead(200, {
+					"Content-Type": "text/event-stream",
+					"Cache-Control": "no-cache",
+					Connection: "keep-alive",
+					"X-Accel-Buffering": "no",
+				});
+				res.write(": connected\n\n");
+				res.write(
+					`data: ${JSON.stringify(this.clientsRegistry.getSummary())}\n\n`,
+				);
+
+				this.sseClients.add(res);
+
+				const keepAlive = setInterval(() => res.write(": ping\n\n"), 30_000);
+				req.on("close", () => {
+					clearInterval(keepAlive);
+					this.sseClients.delete(res);
+				});
+				return;
+			}
+
+			if ([`/${path}`, `/${path}/`].includes(url)) {
 				res.writeHead(200, { "Content-Type": "text/html" });
 				res.end(getDashboardHtml());
 				return;
@@ -61,7 +89,16 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		});
 	}
 
+	private broadcastSse(): void {
+		const payload = `data: ${JSON.stringify(this.clientsRegistry.getSummary())}\n\n`;
+		for (const res of this.sseClients) res.write(payload);
+	}
+
 	public onApplicationShutdown(): Promise<void> {
+		this.unsubscribeRegistry?.();
+		for (const res of this.sseClients) res.end();
+		this.sseClients.clear();
+
 		return new Promise((resolve) => {
 			if (!this.server) {
 				resolve();

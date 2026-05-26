@@ -111,17 +111,19 @@ export function getDashboardHtml(): string {
     }
 
     .ripple-dot {
+      --dot-color: var(--green);
       width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green); flex-shrink: 0;
+      background: var(--dot-color); flex-shrink: 0;
       position: relative;
     }
     .ripple-dot::after {
       content: '';
       position: absolute;
       inset: -4px; border-radius: 50%;
-      background: var(--green); opacity: 0;
+      background: var(--dot-color); opacity: 0;
       animation: ripple 2.2s ease-out infinite;
     }
+    .ripple-dot.offline { --dot-color: var(--red); }
     @keyframes ripple {
       0%   { transform: scale(.5); opacity: .5; }
       100% { transform: scale(2.8); opacity: 0; }
@@ -333,6 +335,33 @@ export function getDashboardHtml(): string {
       font-family: 'IBM Plex Mono', monospace; font-size: .67rem;
     }
 
+    /* ── Offline banner ── */
+    .conn-banner {
+      display: none;
+      align-items: center;
+      gap: .6rem;
+      background: var(--red-glow);
+      border: 1px solid rgba(240,96,96,.3);
+      border-radius: 10px;
+      padding: .75rem 1.25rem;
+      margin-bottom: 1.5rem;
+      color: var(--red);
+      font-size: .8rem;
+      font-weight: 500;
+    }
+    .conn-banner.visible { display: flex; }
+    .conn-banner-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--red); flex-shrink: 0;
+    }
+
+    .grid--offline .card {
+      opacity: .3;
+      pointer-events: none;
+      filter: grayscale(.4);
+      transition: opacity .3s, filter .3s;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 480px) {
       .shell { padding: 1.25rem .9rem; }
@@ -366,11 +395,16 @@ export function getDashboardHtml(): string {
       <div class="header-actions">
         <button class="refresh-btn" onclick="doRefresh()" title="Press R">↺ Refresh</button>
         <div class="live-badge">
-          <div class="ripple-dot"></div>
-          <span>Live · 3s</span>
+          <div class="ripple-dot" id="ripple-dot"></div>
+          <span id="live-label">Connecting…</span>
         </div>
       </div>
     </header>
+
+    <div class="conn-banner" id="conn-banner">
+      <div class="conn-banner-dot"></div>
+      <span>Lost connection to server — reconnecting…</span>
+    </div>
 
     <div class="stats-bar">
       <div class="stat-card stat-total">
@@ -405,8 +439,29 @@ export function getDashboardHtml(): string {
   </div>
 
   <script>
-    const grid     = document.getElementById('grid');
-    const footerTs = document.getElementById('footer-ts');
+    const grid       = document.getElementById('grid');
+    const footerTs   = document.getElementById('footer-ts');
+    const rippleDot  = document.getElementById('ripple-dot');
+    const liveLabel  = document.getElementById('live-label');
+    const connBanner = document.getElementById('conn-banner');
+
+    let connected = false;
+
+    function setOnline() {
+      connected = true;
+      connBanner.classList.remove('visible');
+      grid.classList.remove('grid--offline');
+      rippleDot.classList.remove('offline');
+      liveLabel.textContent = 'Live · SSE';
+    }
+
+    function setOffline() {
+      connected = false;
+      connBanner.classList.add('visible');
+      grid.classList.add('grid--offline');
+      rippleDot.classList.add('offline');
+      liveLabel.textContent = 'Reconnecting…';
+    }
 
     const LABEL = {
       initializing:  'Initializing',
@@ -416,7 +471,6 @@ export function getDashboardHtml(): string {
       disconnected:  'Disconnected',
     };
 
-    // Tracks name → card DOM element. Allows in-place updates without re-animation.
     const cardMap = new Map();
     let showingEmpty = true;
 
@@ -458,7 +512,7 @@ export function getDashboardHtml(): string {
         ? \`<span class="meta-label">number</span><span class="prefix-tag phone-tag">\${c.phone}</span>\`
         : '';
       return \`
-        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}">
+        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}" data-status-at="\${c.statusAt}">
           <div class="card-head">
             <div>
               <span class="client-name">\${c.name}</span>
@@ -481,31 +535,27 @@ export function getDashboardHtml(): string {
     }
 
     function patchCard(el, c) {
-      // Update status-related classes only when status actually changed
       if (el.dataset.status !== c.status) {
         el.className = 'card card-' + c.status;
         el.dataset.status = c.status;
+        el.dataset.statusAt = c.statusAt;
         const badge = el.querySelector('.badge');
         badge.className = 'badge badge-' + c.status;
         el.querySelector('.badge-label').textContent = LABEL[c.status] || c.status;
       }
 
-      // Sync pushname
       const existingPN = el.querySelector('.client-pushname');
       if (c.pushname && !existingPN) {
-        const nameEl = el.querySelector('.client-name');
-        nameEl.insertAdjacentHTML('afterend', '<div class="client-pushname">' + c.pushname + '</div>');
+        el.querySelector('.client-name').insertAdjacentHTML('afterend', '<div class="client-pushname">' + c.pushname + '</div>');
       } else if (c.pushname && existingPN) {
         existingPN.textContent = c.pushname;
       } else if (!c.pushname && existingPN) {
         existingPN.remove();
       }
 
-      // Sync phone
       const existingPhone = el.querySelector('.phone-tag');
       if (c.phone && !existingPhone) {
-        const meta = el.querySelector('.card-meta');
-        meta.insertAdjacentHTML('beforeend',
+        el.querySelector('.card-meta').insertAdjacentHTML('beforeend',
           '<span class="meta-label">number</span><span class="prefix-tag phone-tag">' + c.phone + '</span>');
       } else if (c.phone && existingPhone) {
         existingPhone.textContent = c.phone;
@@ -514,11 +564,9 @@ export function getDashboardHtml(): string {
         existingPhone.remove();
       }
 
-      // Always refresh the duration counter
       el.querySelector('.card-duration').innerHTML =
         'In this state for <strong>' + since(c.statusAt) + '</strong>';
 
-      // Sync QR section
       const hasQr = !!el.querySelector('.qr-section');
       if (c.qr && !hasQr) {
         el.insertAdjacentHTML('beforeend', buildQrHTML(c.qr));
@@ -538,56 +586,65 @@ export function getDashboardHtml(): string {
       showingEmpty = true;
     }
 
+    function render(clients) {
+      updateStats(clients);
+
+      if (!clients.length) {
+        setEmpty('No clients registered yet.');
+        footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();
+        return;
+      }
+
+      if (showingEmpty) {
+        grid.innerHTML = '';
+        showingEmpty = false;
+      }
+
+      const seen = new Set(clients.map(c => c.name));
+      for (const [name, el] of cardMap) {
+        if (!seen.has(name)) { el.remove(); cardMap.delete(name); }
+      }
+
+      for (const c of clients) {
+        if (cardMap.has(c.name)) {
+          patchCard(cardMap.get(c.name), c);
+        } else {
+          const tmp = document.createElement('div');
+          tmp.innerHTML = buildCardHTML(c);
+          const card = tmp.firstElementChild;
+          grid.appendChild(card);
+          cardMap.set(c.name, card);
+          setTimeout(() => card.classList.remove('card-entering'), 400);
+        }
+      }
+
+      footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();
+    }
+
     async function doRefresh() {
       try {
-        const clients = await fetch('./api/clients').then(r => r.json());
-        updateStats(clients);
-
-        if (!clients.length) {
-          setEmpty('No clients registered yet.');
-          footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();
-          return;
-        }
-
-        // Clear empty placeholder on first real data
-        if (showingEmpty) {
-          grid.innerHTML = '';
-          showingEmpty = false;
-        }
-
-        // Remove cards that no longer exist
-        const seen = new Set(clients.map(c => c.name));
-        for (const [name, el] of cardMap) {
-          if (!seen.has(name)) { el.remove(); cardMap.delete(name); }
-        }
-
-        // Update existing cards in-place; append new ones with entrance animation
-        for (const c of clients) {
-          if (cardMap.has(c.name)) {
-            patchCard(cardMap.get(c.name), c);
-          } else {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = buildCardHTML(c);
-            const card = tmp.firstElementChild;
-            grid.appendChild(card);
-            cardMap.set(c.name, card);
-            // Remove the entering class after the animation finishes
-            setTimeout(() => card.classList.remove('card-entering'), 400);
-          }
-        }
-
-        footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();
+        render(await fetch('./api/clients').then(r => r.json()));
       } catch {
         setEmpty('Could not reach the dashboard API.');
       }
     }
 
+    const es = new EventSource('./events');
+    es.onopen = () => setOnline();
+    es.onmessage = e => { setOnline(); render(JSON.parse(e.data)); };
+    es.onerror = () => setOffline();
+
+    setInterval(() => {
+      if (!connected) return;
+      for (const el of document.querySelectorAll('[data-status-at]')) {
+        el.querySelector('.card-duration').innerHTML =
+          'In this state for <strong>' + since(Number(el.dataset.statusAt)) + '</strong>';
+      }
+    }, 1000);
+
     document.addEventListener('keydown', e => {
       if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey) doRefresh();
     });
-
-    doRefresh();
-    setInterval(doRefresh, 3000);
   </script>
 </body>
 </html>`;
