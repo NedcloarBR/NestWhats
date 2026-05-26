@@ -422,6 +422,50 @@ export function getDashboardHtml(token: string): string {
       .card-entering { animation: none; }
       .ripple-dot::after, .badge-dot { animation: none !important; }
     }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(6,9,18,.75);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 1.75rem 1.5rem 1.25rem;
+      max-width: 340px; width: calc(100% - 2rem);
+      animation: modal-in .15s ease both;
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(.95) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-msg {
+      font-size: .875rem; color: var(--text);
+      margin-bottom: 1.25rem; line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .modal-btns { display: flex; gap: .5rem; justify-content: flex-end; }
+    .modal-btn {
+      font-size: .75rem; font-weight: 600;
+      padding: .45rem .9rem;
+      border-radius: 7px; border: 1px solid;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: .04em; text-transform: uppercase;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .modal-btn-cancel { background: transparent; border-color: var(--border2); color: var(--text2); }
+    .modal-btn-cancel:hover { background: var(--surface2); }
+    .modal-btn-confirm { background: transparent; }
+    .modal-btn-confirm.danger  { border-color: rgba(240,96,96,.35);  color: var(--red);  }
+    .modal-btn-confirm.danger:hover  { background: var(--red-glow);  border-color: var(--red);  }
+    .modal-btn-confirm.default { border-color: rgba(91,138,240,.35); color: var(--blue); }
+    .modal-btn-confirm.default:hover { background: var(--blue-glow); border-color: var(--blue); }
   </style>
 </head>
 <body>
@@ -486,6 +530,16 @@ export function getDashboardHtml(token: string): string {
     </footer>
   </div>
 
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-msg" id="modal-msg"></div>
+      <div class="modal-btns">
+        <button class="modal-btn modal-btn-cancel" id="modal-cancel">Cancel</button>
+        <button class="modal-btn modal-btn-confirm" id="modal-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const ACTION_TOKEN = '${token}';
 
@@ -496,6 +550,31 @@ export function getDashboardHtml(token: string): string {
     const connBanner = document.getElementById('conn-banner');
 
     let connected = false;
+
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalMsg     = document.getElementById('modal-msg');
+    const modalCancel  = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
+    let modalResolve = null;
+
+    function showConfirm(message, variant = 'danger') {
+      return new Promise(resolve => {
+        modalResolve = resolve;
+        modalMsg.textContent = message;
+        modalConfirm.className = 'modal-btn modal-btn-confirm ' + variant;
+        modalOverlay.classList.add('visible');
+        modalConfirm.focus();
+      });
+    }
+
+    function closeModal(result) {
+      modalOverlay.classList.remove('visible');
+      if (modalResolve) { modalResolve(result); modalResolve = null; }
+    }
+
+    modalCancel.addEventListener('click', () => closeModal(false));
+    modalConfirm.addEventListener('click', () => closeModal(true));
+    modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(false); });
 
     function setOnline() {
       connected = true;
@@ -539,9 +618,9 @@ export function getDashboardHtml(token: string): string {
     const ACTION_LABELS = { restart: 'Restarting', 'force-qr': 'Forcing new QR', logout: 'Logging out' };
 
     async function doAction(name, action) {
-      if (action === 'restart'  && !confirm(\`Restart "\${name}"?\`)) return;
-      if (action === 'logout'   && !confirm(\`Logout "\${name}"?\\nThis will require scanning a new QR code.\`)) return;
-      if (action === 'force-qr' && !confirm(\`Force new QR for "\${name}"?\\nCurrent session will be logged out.\`)) return;
+      if (action === 'restart'  && !await showConfirm(\`Restart "\${name}"?\`, 'default')) return;
+      if (action === 'logout'   && !await showConfirm(\`Logout "\${name}"?\\nThis will require scanning a new QR code.\`)) return;
+      if (action === 'force-qr' && !await showConfirm(\`Force new QR for "\${name}"?\\nCurrent session will be logged out.\`)) return;
 
       const card = cardMap.get(name);
       card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
@@ -748,7 +827,147 @@ export function getDashboardHtml(token: string): string {
     });
 
     document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal(false); return; }
       if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey) doRefresh();
+    });
+  </script>
+</body>
+</html>`;
+}
+
+export function getLoginHtml(path: string): string {
+	return /* html */ `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NestWhats · Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #060912;
+      --surface: #0c1022;
+      --surface2:#111728;
+      --border:  #1c2442;
+      --border2: #26304e;
+      --text:    #dde4f4;
+      --muted:   #4d5a7a;
+      --red:     #f06060;
+      --red-glow:rgba(240,96,96,.14);
+      --teal:    #2ad4bf;
+    }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle, #18213a 1px, transparent 1px);
+      background-size: 26px 26px;
+      color: var(--text);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.25rem 2rem;
+      width: 100%; max-width: 340px;
+    }
+    .brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; }
+    .brand-logo {
+      width: 40px; height: 40px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+    }
+    .brand-name { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: -.02em; }
+    .brand-sub { font-size: .65rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-top: .15rem; }
+    label { display: block; font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .45rem; }
+    .field { margin-bottom: 1rem; }
+    input {
+      width: 100%;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; color: var(--text);
+      font-family: inherit; font-size: .875rem;
+      padding: .6rem .85rem; outline: none;
+      transition: border-color .15s;
+    }
+    input:focus { border-color: var(--teal); }
+    .submit-btn {
+      width: 100%; margin-top: .5rem;
+      background: var(--teal); border: none; border-radius: 8px;
+      color: #060912;
+      font-family: inherit; font-size: .875rem; font-weight: 700;
+      padding: .7rem; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .submit-btn:hover { opacity: .88; }
+    .submit-btn:active { transform: scale(.98); }
+    .submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .error-msg {
+      display: none; margin-top: .75rem;
+      background: var(--red-glow);
+      border: 1px solid rgba(240,96,96,.3);
+      border-radius: 8px; padding: .55rem .85rem;
+      font-size: .78rem; color: var(--red);
+    }
+    .error-msg.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-logo">🤖</div>
+      <div>
+        <div class="brand-name">NestWhats</div>
+        <div class="brand-sub">Dashboard</div>
+      </div>
+    </div>
+    <form id="form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" autocomplete="username" required autofocus />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="submit-btn" type="submit" id="submit-btn">Sign in</button>
+      <div class="error-msg" id="error-msg">Invalid username or password.</div>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('form');
+    const btn  = document.getElementById('submit-btn');
+    const err  = document.getElementById('error-msg');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      err.classList.remove('visible');
+      try {
+        const res = await fetch('/${path}/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+          }),
+        });
+        if (res.ok) {
+          location.reload();
+        } else {
+          err.classList.add('visible');
+          btn.disabled = false;
+          btn.textContent = 'Sign in';
+        }
+      } catch {
+        err.textContent = 'Could not reach the server.';
+        err.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
+      }
     });
   </script>
 </body>

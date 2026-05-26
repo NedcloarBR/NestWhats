@@ -10,7 +10,7 @@ import {
 import { ClientStatus, ClientsRegistryService } from "nestwhats";
 import type { NestWhatsDashboardOptions } from "./dashboard-options.interface";
 import { DASHBOARD_OPTIONS } from "./dashboard.constants";
-import { getDashboardHtml } from "./dashboard.html";
+import { getDashboardHtml, getLoginHtml } from "./dashboard.html";
 
 @Injectable()
 export class DashboardService implements OnModuleInit, OnApplicationShutdown {
@@ -19,6 +19,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 	private readonly sseClients = new Set<ServerResponse>();
 	private readonly actionToken = randomUUID();
 	private unsubscribeRegistry?: () => void;
+	private readonly sessions = new Set<string>();
 
 	public constructor(
 		@Inject(DASHBOARD_OPTIONS)
@@ -35,16 +36,33 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		);
 
 		this.server = createServer((req, res) => {
-			if (!this.checkAuth(req)) {
-				res.writeHead(401, {
-					"WWW-Authenticate": 'Basic realm="NestWhats Dashboard"',
-					"Content-Type": "text/plain",
+			const url = req.url ?? "/";
+
+			if (req.method === "POST" && (url === `/${path}/auth` || url === "/auth")) {
+				const chunks: Buffer[] = [];
+				req.on("data", (chunk: Buffer) => chunks.push(chunk));
+				req.on("end", () => {
+					this.handleLogin(Buffer.concat(chunks).toString(), res);
 				});
-				res.end("Unauthorized");
 				return;
 			}
 
-			const url = req.url ?? "/";
+			if ([`/${path}`, `/${path}/`].includes(url)) {
+				if (this.options.auth && !this.checkAuth(req)) {
+					res.writeHead(200, { "Content-Type": "text/html" });
+					res.end(getLoginHtml(path));
+					return;
+				}
+				res.writeHead(200, { "Content-Type": "text/html" });
+				res.end(getDashboardHtml(this.actionToken));
+				return;
+			}
+
+			if (!this.checkAuth(req)) {
+				res.writeHead(401, { "Content-Type": "text/plain" });
+				res.end("Unauthorized");
+				return;
+			}
 
 			if (url === `/${path}/api/clients` || url === "/api/clients") {
 				res.writeHead(200, { "Content-Type": "application/json" });
@@ -71,12 +89,6 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 					clearInterval(keepAlive);
 					this.sseClients.delete(res);
 				});
-				return;
-			}
-
-			if ([`/${path}`, `/${path}/`].includes(url)) {
-				res.writeHead(200, { "Content-Type": "text/html" });
-				res.end(getDashboardHtml(this.actionToken));
 				return;
 			}
 
@@ -175,6 +187,44 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		}
 	}
 
+	private handleLogin(rawBody: string, res: ServerResponse): void {
+		if (!this.options.auth) {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Auth not configured");
+			return;
+		}
+
+		let username: string;
+		let password: string;
+		try {
+			({ username, password } = JSON.parse(rawBody) as {
+				username: string;
+				password: string;
+			});
+		} catch {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Invalid body");
+			return;
+		}
+
+		if (
+			username !== this.options.auth.username ||
+			password !== this.options.auth.password
+		) {
+			res.writeHead(401, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ ok: false, error: "Invalid credentials" }));
+			return;
+		}
+
+		const token = randomUUID();
+		this.sessions.add(token);
+		res.writeHead(200, {
+			"Content-Type": "application/json",
+			"Set-Cookie": `session=${token}; Path=/; HttpOnly; SameSite=Strict`,
+		});
+		res.end(JSON.stringify({ ok: true }));
+	}
+
 	private broadcastSse(): void {
 		const payload = `data: ${JSON.stringify(this.clientsRegistry.getSummary())}\n\n`;
 		for (const res of this.sseClients) res.write(payload);
@@ -200,19 +250,9 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 
 	private checkAuth(req: IncomingMessage): boolean {
 		if (!this.options.auth) return true;
-
-		const authorization = req.headers.authorization ?? "";
-		if (!authorization.startsWith("Basic ")) return false;
-
-		const decoded = Buffer.from(authorization.slice(6), "base64").toString(
-			"utf-8",
-		);
-		const [username, ...rest] = decoded.split(":");
-		const password = rest.join(":");
-
-		return (
-			username === this.options.auth.username &&
-			password === this.options.auth.password
-		);
+		const token = (req.headers.cookie ?? "").match(
+			/(?:^|;)\s*session=([^;]+)/,
+		)?.[1];
+		return !!token && this.sessions.has(token);
 	}
 }
