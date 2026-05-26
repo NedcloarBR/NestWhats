@@ -4,56 +4,54 @@ import {
 	ModuleMetadata,
 	Provider,
 } from "@nestjs/common";
-import { Client, ClientOptions } from "whatsapp-web.js";
+import { Client, ClientOptions, LocalAuth } from "whatsapp-web.js";
 import { ClientsRegistryService } from "./clients-registry.service";
 import { CommandsService } from "./commands/commands.service";
 import { ListenerRegistryService } from "./listeners/listener-registry.service";
 import { NestWhatsClientService } from "./nestwhats-client.service";
-import { NestWhatsClientOptions } from "./nestwhats-options.interface";
+import {
+	NESTWHATS_DEFAULT_NAME,
+	NestWhatsClientOptions,
+	resolveClientOptions,
+} from "./nestwhats-options.interface";
 import { NestWhatsSharedModule } from "./nestwhats-shared.module";
 import { getClientToken } from "./providers/client-token.util";
 
 function toClientOptions(options: NestWhatsClientOptions): ClientOptions {
-	const { name: _n, prefix: _p, ...rest } = options;
+	const { name: clientName, prefix: _p, printQR: _q, ignoreSelf: _i, ...rest } = options;
+
+	if (rest.authStrategy instanceof LocalAuth && !rest.authStrategy.clientId) {
+		rest.authStrategy.clientId = clientName;
+	}
+
 	return rest as ClientOptions;
 }
 
 @Module({})
 // biome-ignore lint/complexity/noStaticOnlyClass: This class is designed to only have static methods for module registration.
 export class NestWhatsModule {
-	public static forRoot(options: NestWhatsClientOptions): DynamicModule {
-		const displayName = options.name ?? "default";
-		const clientToken = getClientToken(displayName);
+	public static forRoot(options: Partial<NestWhatsClientOptions>): DynamicModule {
+		const resolved = resolveClientOptions(options);
+		const clientToken = getClientToken(resolved.name);
 		const lifecycleToken = Symbol(
-			`NESTWHATS::LIFECYCLE_${displayName.toUpperCase()}`,
+			`NESTWHATS::LIFECYCLE_${resolved.name.toUpperCase()}`,
 		);
 
 		const providers: Provider[] = [
 			{
 				provide: clientToken,
-				useValue: new Client(toClientOptions(options)),
+				useValue: new Client(toClientOptions(resolved)),
 			},
 			{
 				provide: lifecycleToken,
 				useFactory: (
 					client: Client,
+					clientsRegistry: ClientsRegistryService,
 					commandsService: CommandsService,
 					listenerRegistry: ListenerRegistryService,
-					clientsRegistry: ClientsRegistryService,
 				) =>
-					new NestWhatsClientService(
-						client,
-						options,
-						commandsService,
-						listenerRegistry,
-						clientsRegistry,
-					),
-				inject: [
-					clientToken,
-					CommandsService,
-					ListenerRegistryService,
-					ClientsRegistryService,
-				],
+					new NestWhatsClientService(client, resolved, clientsRegistry, commandsService, listenerRegistry),
+				inject: [clientToken, ClientsRegistryService, CommandsService, ListenerRegistryService],
 			},
 		];
 
@@ -78,10 +76,10 @@ export class NestWhatsModule {
 		imports?: ModuleMetadata["imports"];
 		useFactory: (
 			...args: any[]
-		) => Promise<NestWhatsClientOptions> | NestWhatsClientOptions;
+		) => Promise<Partial<NestWhatsClientOptions>> | Partial<NestWhatsClientOptions>;
 		inject?: any[];
 	}): DynamicModule {
-		const displayName = options.name ?? "default";
+		const displayName = options.name ?? NESTWHATS_DEFAULT_NAME;
 		const clientToken = getClientToken(displayName);
 		const optionsToken = Symbol(
 			`NESTWHATS::OPTIONS_${displayName.toUpperCase()}`,
@@ -93,7 +91,11 @@ export class NestWhatsModule {
 		const providers: Provider[] = [
 			{
 				provide: optionsToken,
-				useFactory: options.useFactory,
+				useFactory: async (...args: any[]) =>
+					resolveClientOptions({
+						...(await options.useFactory(...args)),
+						name: options.name,
+					}),
 				inject: options.inject ?? [],
 			},
 			{
@@ -107,24 +109,12 @@ export class NestWhatsModule {
 				useFactory: (
 					client: Client,
 					clientOptions: NestWhatsClientOptions,
+					clientsRegistry: ClientsRegistryService,
 					commandsService: CommandsService,
 					listenerRegistry: ListenerRegistryService,
-					clientsRegistry: ClientsRegistryService,
 				) =>
-					new NestWhatsClientService(
-						client,
-						{ ...clientOptions, name: options.name },
-						commandsService,
-						listenerRegistry,
-						clientsRegistry,
-					),
-				inject: [
-					clientToken,
-					optionsToken,
-					CommandsService,
-					ListenerRegistryService,
-					ClientsRegistryService,
-				],
+					new NestWhatsClientService(client, clientOptions, clientsRegistry, commandsService, listenerRegistry),
+				inject: [clientToken, optionsToken, ClientsRegistryService, CommandsService, ListenerRegistryService],
 			},
 		];
 

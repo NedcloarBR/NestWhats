@@ -18,47 +18,40 @@ export class NestWhatsClientService
 	implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
 	private readonly logger = new Logger(NestWhatsClientService.name);
-	private readonly name: string;
-	private readonly prefix: string;
-	private readonly printQR: boolean;
 
 	public constructor(
 		private readonly client: Client,
 		private readonly options: NestWhatsClientOptions,
+		private readonly clientsRegistry: ClientsRegistryService,
 		private readonly commandsService: CommandsService,
 		private readonly listenerRegistry: ListenerRegistryService,
-		private readonly clientsRegistry: ClientsRegistryService,
-	) {
-		this.name = options.name ?? "default";
-		this.prefix = options.prefix ?? "!";
-		this.printQR = options.printQR ?? true;
-	}
+	) {}
 
 	public onModuleInit(): void {
 		this.clientsRegistry.add({
-			name: this.name,
+			name: this.options.name,
 			client: this.client,
-			prefix: this.prefix,
+			prefix: this.options.prefix,
 		});
 
 		this.client.on(Events.QR_RECEIVED, async (qr) => {
 			const dataUrl = await toDataURL(qr);
 			this.clientsRegistry.updateStatus(
-				this.name,
+				this.options.name,
 				ClientStatus.QrReceived,
 				dataUrl,
 			);
 
-			if (this.printQR) {
+			if (this.options.printQR) {
 				QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
 					if (err) {
 						this.logger.error(
-							`[${this.name}] Error generating QR code: ${err.message}`,
+							`[${this.options.name}] Error generating QR code: ${err.message}`,
 						);
 						return;
 					}
 					this.logger.verbose(
-						`[${this.name}] Scan the QR code below to authenticate:`,
+						`[${this.options.name}] Scan the QR code below to authenticate:`,
 					);
 					console.log(url);
 				});
@@ -66,83 +59,51 @@ export class NestWhatsClientService
 		});
 
 		this.client.on(Events.AUTHENTICATED, () => {
-			this.clientsRegistry.updateStatus(this.name, ClientStatus.Authenticated);
+			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Authenticated);
 		});
 
 		this.client.on(Events.READY, () => {
-			this.clientsRegistry.updateStatus(this.name, ClientStatus.Ready);
+			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Ready);
 			this.clientsRegistry.updateInfo(
-				this.name,
+				this.options.name,
 				this.client.info.pushname,
 				this.client.info.wid.user,
 			);
 		});
 
 		this.client.on(Events.DISCONNECTED, () => {
-			this.clientsRegistry.updateStatus(this.name, ClientStatus.Disconnected);
+			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Disconnected);
 		});
 
 		this.client.on(Events.AUTHENTICATION_FAILURE, () => {
-			this.clientsRegistry.updateStatus(this.name, ClientStatus.Disconnected);
+			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Disconnected);
 		});
 	}
 
 	public onApplicationBootstrap(): void {
 		for (const listener of this.listenerRegistry.getAll()) {
 			const clients = listener.getClients();
-			if (clients && !clients.includes(this.name)) continue;
+			if (clients && !clients.includes(this.options.name)) continue;
 
 			this.client[listener.getType()](listener.getEvent(), (...args) =>
 				listener.execute(args),
 			);
 		}
 
-		this.client.on(Events.MESSAGE_CREATE, async (message) => {
-			if (!message?.body?.length) return;
-
-			const content = message.body.toLowerCase();
-
-			if (this.prefix && content.startsWith(this.prefix)) {
-				const args = content.substring(this.prefix.length).split(/ +/g);
-				const cmd = args.shift();
-
-				if (cmd) {
-					const command = this.commandsService.get(cmd);
-					if (command) {
-						const clients = command.getClients();
-						if (!clients || clients.includes(this.name))
-							return command.execute([message]);
-					}
-				}
-			}
-
-			for (const [prefix, commands] of this.commandsService.prefixCache) {
-				if (content.startsWith(prefix)) {
-					const args = content.substring(prefix.length).split(/ +/g);
-					const cmd = args.shift();
-
-					if (cmd) {
-						const command = commands.get(cmd);
-						if (command) {
-							const clients = command.getClients();
-							if (!clients || clients.includes(this.name))
-								return command.execute([message]);
-						}
-					}
-				}
-			}
-		});
+		this.client.on(Events.MESSAGE_CREATE, (message) =>
+			this.commandsService.handle(message, this.options.name, this.options.prefix),
+		);
 
 		this.client.initialize().catch((err: unknown) => {
 			this.logger.error(
-				`[${this.name}] Client initialization failed: ${err instanceof Error ? err.message : String(err)}`,
+				`[${this.options.name}] Client initialization failed: ${err instanceof Error ? err.message : String(err)}`,
 			);
 		});
 	}
 
 	public async onApplicationShutdown(): Promise<void> {
-		this.logger.log(`[${this.name}] Destroying client…`);
+		this.logger.log(`[${this.options.name}] Destroying client…`);
 		await this.client.destroy();
-		this.logger.log(`[${this.name}] Client destroyed`);
+		this.logger.log(`[${this.options.name}] Client destroyed`);
 	}
 }
