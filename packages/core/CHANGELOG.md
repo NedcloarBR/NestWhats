@@ -1,6 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.3.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.0.0...v2.3.0) - (2026-05-26)
+
+## Bug Fixes
+
+- **core:** Handle AUTHENTICATION_FAILURE to prevent unhandled rejection ([6867aa0](https://github.com/NedcloarBR/NestWhats/commit/6867aa09a257819199cca439aa8323880b8a0fc1))
+
+## Documentation
+
+- Add workspace and dashboard READMEs, update license year and package files ([4e15c88](https://github.com/NedcloarBR/NestWhats/commit/4e15c88fde4f6de22fbc242182816a4c240ce0d2))
+
+## Features
+
+- **core:** Add observer pattern to ClientsRegistryService ([7026b13](https://github.com/NedcloarBR/NestWhats/commit/7026b13e0aaf84139e4788471345b4309cb81c40))
+
 # [2.2.0](https://github.com/NedcloarBR/NestWhats/compare/v2.1.1...v2.2.0) - (2026-05-24)
 
 ## Bug Fixes
