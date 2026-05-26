@@ -81,6 +81,10 @@ export class NestWhatsClientService
 		this.client.on(Events.DISCONNECTED, () => {
 			this.clientsRegistry.updateStatus(this.name, ClientStatus.Disconnected);
 		});
+
+		this.client.on(Events.AUTHENTICATION_FAILURE, () => {
+			this.clientsRegistry.updateStatus(this.name, ClientStatus.Disconnected);
+		});
 	}
 
 	public onApplicationBootstrap(): void {
