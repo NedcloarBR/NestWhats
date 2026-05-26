@@ -35,6 +35,7 @@ export interface ClientEntry {
 export class ClientsRegistryService {
 	private readonly logger = new Logger(ClientsRegistryService.name);
 	private readonly registry = new Map<InjectionToken, ClientEntry>();
+	private readonly changeListeners = new Set<() => void>();
 
 	public add(entry: Omit<ClientEntry, "status" | "qr" | "statusAt">): void {
 		const token = getClientToken(entry.name);
@@ -59,6 +60,7 @@ export class ClientsRegistryService {
 		entry.status = status;
 		entry.statusAt = Date.now();
 		entry.qr = qr;
+		this.notify();
 	}
 
 	public updateInfo(name: string, pushname: string, phone: string): void {
@@ -67,6 +69,16 @@ export class ClientsRegistryService {
 		if (!entry) return;
 		entry.pushname = pushname;
 		entry.phone = phone;
+		this.notify();
+	}
+
+	public subscribe(fn: () => void): () => void {
+		this.changeListeners.add(fn);
+		return () => this.changeListeners.delete(fn);
+	}
+
+	private notify(): void {
+		for (const fn of this.changeListeners) fn();
 	}
 
 	public get(name?: string): Client | undefined {
