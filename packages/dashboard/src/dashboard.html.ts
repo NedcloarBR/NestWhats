@@ -158,6 +158,7 @@ export function getDashboardHtml(token: string): string {
     }
     .stat-total::after  { background: var(--blue); }
     .stat-ready::after  { background: var(--green); }
+    .stat-auth::after   { background: var(--teal); }
     .stat-qr::after     { background: var(--orange); }
     .stat-disc::after   { background: var(--red); }
 
@@ -167,6 +168,7 @@ export function getDashboardHtml(token: string): string {
     }
     .stat-total .stat-n { color: var(--blue); }
     .stat-ready .stat-n { color: var(--green); }
+    .stat-auth  .stat-n { color: var(--teal); }
     .stat-qr    .stat-n { color: var(--orange); }
     .stat-disc  .stat-n { color: var(--red); }
 
@@ -350,8 +352,30 @@ export function getDashboardHtml(token: string): string {
     .action-btn:disabled { opacity: .35; cursor: not-allowed; }
     .action-btn-restart { border-color: var(--border2); color: var(--text2); }
     .action-btn-restart:hover:not(:disabled) { background: var(--surface3); border-color: var(--blue); color: var(--blue); }
+    .action-btn-qr { border-color: rgba(42,212,191,.25); color: var(--teal); }
+    .action-btn-qr:hover:not(:disabled) { background: var(--teal-glow); border-color: var(--teal); }
     .action-btn-logout { border-color: rgba(240,96,96,.25); color: var(--red); }
     .action-btn-logout:hover:not(:disabled) { background: var(--red-glow); border-color: var(--red); }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      display: flex; flex-direction: column; gap: .4rem; z-index: 200;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; padding: .55rem 1rem;
+      font-size: .76rem; font-weight: 500; color: var(--text);
+      animation: toast-in .2s ease both;
+      max-width: 240px;
+    }
+    .toast.ok  { border-color: rgba(34,199,139,.4); color: var(--green); }
+    .toast.err { border-color: rgba(240,96,96,.4);  color: var(--red); }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     /* ── Offline banner ── */
     .conn-banner {
@@ -419,6 +443,8 @@ export function getDashboardHtml(token: string): string {
       </div>
     </header>
 
+    <div class="toast-wrap" id="toast-wrap"></div>
+
     <div class="conn-banner" id="conn-banner">
       <div class="conn-banner-dot"></div>
       <span>Lost connection to server — reconnecting…</span>
@@ -432,6 +458,10 @@ export function getDashboardHtml(token: string): string {
       <div class="stat-card stat-ready">
         <div class="stat-n" id="s-ready">—</div>
         <div class="stat-l">Ready</div>
+      </div>
+      <div class="stat-card stat-auth">
+        <div class="stat-n" id="s-auth">—</div>
+        <div class="stat-l">Authenticated</div>
       </div>
       <div class="stat-card stat-qr">
         <div class="stat-n" id="s-qr">—</div>
@@ -497,24 +527,35 @@ export function getDashboardHtml(token: string): string {
     function buildActionsHTML(status, name) {
       if (status === 'initializing') return '';
       const n = name.replace(/"/g, '&quot;');
-      const restart = \`<button class="action-btn action-btn-restart" data-action="restart" data-client="\${n}">↺ Restart</button>\`;
-      const logout  = \`<button class="action-btn action-btn-logout"  data-action="logout"  data-client="\${n}">⏏ Logout</button>\`;
-      const btns = status === 'ready' || status === 'authenticated'
-        ? restart + logout
+      const restart  = \`<button class="action-btn action-btn-restart" data-action="restart"   data-client="\${n}">↺ Restart</button>\`;
+      const forceQr  = \`<button class="action-btn action-btn-qr"      data-action="force-qr" data-client="\${n}">⟳ Force QR</button>\`;
+      const logout   = \`<button class="action-btn action-btn-logout"   data-action="logout"   data-client="\${n}">⏏ Logout</button>\`;
+      const btns = (status === 'ready' || status === 'authenticated')
+        ? restart + forceQr + logout
         : restart;
       return \`<div class="card-actions">\${btns}</div>\`;
     }
 
+    const ACTION_LABELS = { restart: 'Restarting', 'force-qr': 'Forcing new QR', logout: 'Logging out' };
+
     async function doAction(name, action) {
+      if (action === 'restart'  && !confirm(\`Restart "\${name}"?\`)) return;
+      if (action === 'logout'   && !confirm(\`Logout "\${name}"?\\nThis will require scanning a new QR code.\`)) return;
+      if (action === 'force-qr' && !confirm(\`Force new QR for "\${name}"?\\nCurrent session will be logged out.\`)) return;
+
       const card = cardMap.get(name);
       card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
       try {
-        await fetch(\`./api/clients/\${encodeURIComponent(name)}/action\`, {
+        const res = await fetch(\`./api/clients/\${encodeURIComponent(name)}/action\`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Action-Token': ACTION_TOKEN },
           body: JSON.stringify({ action }),
         });
-      } catch { /* SSE will reflect new state */ }
+        if (res.ok) showToast(\`\${ACTION_LABELS[action] ?? action} \${name}…\`, 'ok');
+        else showToast('Action failed', 'err');
+      } catch {
+        showToast('Could not reach server', 'err');
+      }
     }
 
     function since(ts) {
@@ -529,8 +570,18 @@ export function getDashboardHtml(token: string): string {
     function updateStats(clients) {
       document.getElementById('s-total').textContent = clients.length;
       document.getElementById('s-ready').textContent = clients.filter(c => c.status === 'ready').length;
+      document.getElementById('s-auth').textContent  = clients.filter(c => c.status === 'authenticated').length;
       document.getElementById('s-qr').textContent    = clients.filter(c => c.status === 'qr_received').length;
       document.getElementById('s-disc').textContent  = clients.filter(c => c.status === 'disconnected').length;
+    }
+
+    function showToast(msg, type = '') {
+      const wrap = document.getElementById('toast-wrap');
+      const el = document.createElement('div');
+      el.className = 'toast' + (type ? ' ' + type : '');
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
     }
 
     function buildQrHTML(qr) {

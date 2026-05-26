@@ -151,6 +151,14 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 						`[${name}] Restart failed: ${err instanceof Error ? err.message : String(err)}`,
 					);
 				});
+			} else if (action === "force-qr") {
+				await entry.client.logout();
+				this.clientsRegistry.updateStatus(name, ClientStatus.Initializing);
+				entry.client.initialize().catch((err: unknown) => {
+					this.logger.error(
+						`[${name}] Force QR failed: ${err instanceof Error ? err.message : String(err)}`,
+					);
+				});
 			} else {
 				res.writeHead(400, { "Content-Type": "text/plain" });
 				res.end("Unknown action");
