@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [dashboard-v1.1.0](https://github.com/NedcloarBR/NestWhats/compare/v2.3.0...dashboard-v1.1.0) - (2026-05-26)
+
 # [dashboard-v1.0.0](https://github.com/NedcloarBR/NestWhats/compare/v2.2.0...dashboard-v1.0.0) - (2026-05-24)
 
 ## Bug Fixes
