@@ -65,11 +65,11 @@ export class NestWhatsClientService
 			}
 		});
 
-		this.client.once(Events.AUTHENTICATED, () => {
+		this.client.on(Events.AUTHENTICATED, () => {
 			this.clientsRegistry.updateStatus(this.name, ClientStatus.Authenticated);
 		});
 
-		this.client.once(Events.READY, () => {
+		this.client.on(Events.READY, () => {
 			this.clientsRegistry.updateStatus(this.name, ClientStatus.Ready);
 			this.clientsRegistry.updateInfo(
 				this.name,
