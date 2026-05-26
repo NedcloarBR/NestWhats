@@ -1,4 +1,4 @@
-export function getDashboardHtml(): string {
+export function getDashboardHtml(token: string): string {
 	return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -335,6 +335,24 @@ export function getDashboardHtml(): string {
       font-family: 'IBM Plex Mono', monospace; font-size: .67rem;
     }
 
+    /* ── Action buttons ── */
+    .card-actions { display: flex; gap: .5rem; padding-top: .1rem; }
+    .action-btn {
+      flex: 1;
+      font-size: .67rem; font-weight: 600;
+      padding: .32rem .5rem;
+      border-radius: 6px; border: 1px solid;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: .04em; text-transform: uppercase;
+      transition: background .15s, border-color .15s, color .15s;
+      background: transparent;
+    }
+    .action-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .action-btn-restart { border-color: var(--border2); color: var(--text2); }
+    .action-btn-restart:hover:not(:disabled) { background: var(--surface3); border-color: var(--blue); color: var(--blue); }
+    .action-btn-logout { border-color: rgba(240,96,96,.25); color: var(--red); }
+    .action-btn-logout:hover:not(:disabled) { background: var(--red-glow); border-color: var(--red); }
+
     /* ── Offline banner ── */
     .conn-banner {
       display: none;
@@ -439,6 +457,8 @@ export function getDashboardHtml(): string {
   </div>
 
   <script>
+    const ACTION_TOKEN = '${token}';
+
     const grid       = document.getElementById('grid');
     const footerTs   = document.getElementById('footer-ts');
     const rippleDot  = document.getElementById('ripple-dot');
@@ -473,6 +493,29 @@ export function getDashboardHtml(): string {
 
     const cardMap = new Map();
     let showingEmpty = true;
+
+    function buildActionsHTML(status, name) {
+      if (status === 'initializing') return '';
+      const n = name.replace(/"/g, '&quot;');
+      const restart = \`<button class="action-btn action-btn-restart" data-action="restart" data-client="\${n}">↺ Restart</button>\`;
+      const logout  = \`<button class="action-btn action-btn-logout"  data-action="logout"  data-client="\${n}">⏏ Logout</button>\`;
+      const btns = status === 'ready' || status === 'authenticated'
+        ? restart + logout
+        : restart;
+      return \`<div class="card-actions">\${btns}</div>\`;
+    }
+
+    async function doAction(name, action) {
+      const card = cardMap.get(name);
+      card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+      try {
+        await fetch(\`./api/clients/\${encodeURIComponent(name)}/action\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Action-Token': ACTION_TOKEN },
+          body: JSON.stringify({ action }),
+        });
+      } catch { /* SSE will reflect new state */ }
+    }
 
     function since(ts) {
       const s = Math.floor((Date.now() - ts) / 1000);
@@ -530,6 +573,7 @@ export function getDashboardHtml(): string {
           </div>
           <div class="card-duration">In this state for <strong>\${since(c.statusAt)}</strong></div>
           \${c.qr ? buildQrHTML(c.qr) : ''}
+          \${buildActionsHTML(c.status, c.name)}
         </div>
       \`;
     }
@@ -542,6 +586,11 @@ export function getDashboardHtml(): string {
         const badge = el.querySelector('.badge');
         badge.className = 'badge badge-' + c.status;
         el.querySelector('.badge-label').textContent = LABEL[c.status] || c.status;
+
+        const existing = el.querySelector('.card-actions');
+        if (existing) existing.remove();
+        const newActions = buildActionsHTML(c.status, c.name);
+        if (newActions) el.insertAdjacentHTML('beforeend', newActions);
       }
 
       const existingPN = el.querySelector('.client-pushname');
@@ -641,6 +690,11 @@ export function getDashboardHtml(): string {
           'In this state for <strong>' + since(Number(el.dataset.statusAt)) + '</strong>';
       }
     }, 1000);
+
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (btn) doAction(btn.dataset.client, btn.dataset.action);
+    });
 
     document.addEventListener('keydown', e => {
       if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey) doRefresh();

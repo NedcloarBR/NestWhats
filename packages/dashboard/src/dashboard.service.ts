@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { IncomingMessage, Server, ServerResponse, createServer } from "node:http";
 import {
 	Inject,
@@ -6,7 +7,7 @@ import {
 	OnApplicationShutdown,
 	OnModuleInit,
 } from "@nestjs/common";
-import { ClientsRegistryService } from "nestwhats";
+import { ClientStatus, ClientsRegistryService } from "nestwhats";
 import type { NestWhatsDashboardOptions } from "./dashboard-options.interface";
 import { DASHBOARD_OPTIONS } from "./dashboard.constants";
 import { getDashboardHtml } from "./dashboard.html";
@@ -16,6 +17,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 	private readonly logger = new Logger("NestWhatsDashboard");
 	private server: Server | undefined;
 	private readonly sseClients = new Set<ServerResponse>();
+	private readonly actionToken = randomUUID();
 	private unsubscribeRegistry?: () => void;
 
 	public constructor(
@@ -74,7 +76,35 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 
 			if ([`/${path}`, `/${path}/`].includes(url)) {
 				res.writeHead(200, { "Content-Type": "text/html" });
-				res.end(getDashboardHtml());
+				res.end(getDashboardHtml(this.actionToken));
+				return;
+			}
+
+			const actionMatch =
+				req.method === "POST"
+					? url.match(
+							new RegExp(
+								`^(?:/${path})?/api/clients/([^/]+)/action$`,
+							),
+						)
+					: null;
+
+			if (actionMatch) {
+				if (req.headers["x-action-token"] !== this.actionToken) {
+					res.writeHead(403, { "Content-Type": "text/plain" });
+					res.end("Forbidden");
+					return;
+				}
+				const name = decodeURIComponent(actionMatch[1]);
+				const chunks: Buffer[] = [];
+				req.on("data", (chunk: Buffer) => chunks.push(chunk));
+				req.on("end", () => {
+					void this.handleAction(
+						name,
+						Buffer.concat(chunks).toString(),
+						res,
+					);
+				});
 				return;
 			}
 
@@ -87,6 +117,54 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 				`Dashboard available at http://localhost:${port}/${path}`,
 			);
 		});
+	}
+
+	private async handleAction(
+		name: string,
+		rawBody: string,
+		res: ServerResponse,
+	): Promise<void> {
+		const entry = this.clientsRegistry.getEntry(name);
+		if (!entry) {
+			res.writeHead(404, { "Content-Type": "text/plain" });
+			res.end("Client not found");
+			return;
+		}
+
+		let action: string;
+		try {
+			({ action } = JSON.parse(rawBody) as { action: string });
+		} catch {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Invalid body");
+			return;
+		}
+
+		try {
+			if (action === "logout") {
+				await entry.client.logout();
+			} else if (action === "restart") {
+				await entry.client.destroy();
+				this.clientsRegistry.updateStatus(name, ClientStatus.Initializing);
+				entry.client.initialize().catch((err: unknown) => {
+					this.logger.error(
+						`[${name}] Restart failed: ${err instanceof Error ? err.message : String(err)}`,
+					);
+				});
+			} else {
+				res.writeHead(400, { "Content-Type": "text/plain" });
+				res.end("Unknown action");
+				return;
+			}
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ ok: true }));
+		} catch (err: unknown) {
+			this.logger.error(
+				`Action "${action}" on "${name}" failed: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			res.writeHead(500, { "Content-Type": "text/plain" });
+			res.end("Action failed");
+		}
 	}
 
 	private broadcastSse(): void {
