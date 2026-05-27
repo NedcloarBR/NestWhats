@@ -93,6 +93,10 @@ export class ClientsRegistryService {
 		return [...this.registry.values()];
 	}
 
+	public getByStatus(status: ClientStatus): ClientEntry[] {
+		return [...this.registry.values()].filter((e) => e.status === status);
+	}
+
 	public getNames(): string[] {
 		return [...this.registry.values()].map((entry) => entry.name);
 	}
