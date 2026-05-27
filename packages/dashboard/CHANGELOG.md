@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [dashboard-v1.2.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.1.0...dashboard-v1.2.0) - (2026-05-27)
+
+## Features
+
+- **dashboard:** Replace browser native dialogs with custom UI ([52f261c](https://github.com/NedcloarBR/NestWhats/commit/52f261cf96ad4058f329f339204f7f9c29a055e8))
+- **dashboard:** Add client action buttons with confirmation and toast feedback ([dfdbcee](https://github.com/NedcloarBR/NestWhats/commit/dfdbceebf45a0b4ce11c10da45b9dce2cb79d82e))
+- **dashboard:** Add per-client logout and restart actions ([2d496c0](https://github.com/NedcloarBR/NestWhats/commit/2d496c0f874f6dfd4cd2cb9b76be897754a8f0e2))
+
 # [dashboard-v1.1.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.0.0...dashboard-v1.1.0) - (2026-05-26)
 
 ## Documentation
