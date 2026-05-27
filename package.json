@@ -16,6 +16,7 @@
 		"lint": "biome lint packages/*/src",
 		"release:core": "yarn workspace nestwhats release-it",
 		"release:dashboard": "yarn workspace @nestwhats/dashboard release-it",
+		"release:locale": "yarn workspace @nestwhats/locale release-it",
 		"prepare": "husky"
 	},
 	"devDependencies": {
