@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.4.0](https://github.com/NedcloarBR/NestWhats/compare/v2.3.1...v2.4.0) - (2026-05-27)
+
+## Features
+
+- **core:** Add ClientsRegistryService.getByStatus() ([bcb0371](https://github.com/NedcloarBR/NestWhats/commit/bcb037182c6b225cdc1e9165606b14266677a76b))
+- **core:** Add NestWhatsHealthIndicator for health check integration ([c912546](https://github.com/NedcloarBR/NestWhats/commit/c9125467cdaf9084fad487e03a93b32b39a1dce8))
+- **core:** Add CommandsRegistryService.getAll() for dynamic help ([ae611cc](https://github.com/NedcloarBR/NestWhats/commit/ae611cc64fbb4c99f3c53a062a1502e207384c85))
+
 # [2.3.1](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.2.0...v2.3.1) - (2026-05-27)
 
 ## Bug Fixes
