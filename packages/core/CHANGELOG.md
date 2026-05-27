@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [2.3.1](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.2.0...v2.3.1) - (2026-05-27)
+
+## Bug Fixes
+
+- **core:** Change AUTHENTICATED and READY listeners from once to on ([e4faf31](https://github.com/NedcloarBR/NestWhats/commit/e4faf316ff935648b73a6cf9d291f6bd521f0b11))
+
+## Refactor
+
+- **core:** Centralize option defaults and split command responsibilities ([6a1e28e](https://github.com/NedcloarBR/NestWhats/commit/6a1e28e06325249cdf2d97901c70ac0c9491ea44))
+
 # [2.3.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.0.0...v2.3.0) - (2026-05-26)
 
 ## Bug Fixes
