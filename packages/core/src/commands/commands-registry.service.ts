@@ -56,6 +56,14 @@ export class CommandsRegistryService {
 		}
 	}
 
+	public getAll(): CommandDiscovery[] {
+		const seen = new Set<CommandDiscovery>();
+		for (const command of this.cache.values()) seen.add(command);
+		for (const map of this.prefixCache.values())
+			for (const command of map.values()) seen.add(command);
+		return [...seen];
+	}
+
 	public get(name: string) {
 		return this.cache.get(name);
 	}
