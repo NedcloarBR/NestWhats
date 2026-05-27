@@ -8,6 +8,7 @@ export * from "./providers";
 export * from "./clients-registry.service";
 
 export * from "./nestwhats-client.service";
+export * from "./nestwhats-health.indicator";
 export * from "./nestwhats-explorer.service";
 export * from "./nestwhats-options.interface";
 export * from "./nestwhats-shared.module";
