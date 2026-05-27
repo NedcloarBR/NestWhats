@@ -1,7 +1,7 @@
 {
 	"name": "@nestwhats/locale",
 	"description": "Locale resolution for nestwhats — detect language from WhatsApp messages and inject translations into command handlers",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
@@ -46,7 +46,7 @@
 		"nestwhats": "^2.4.0",
 		"whatsapp-web.js": "^1.34.0"
 	},
-  "publishConfig": {
+	"publishConfig": {
 		"access": "public"
 	}
 }
