@@ -1,4 +1,4 @@
-export function getDashboardHtml(token: string): string {
+export function getDashboardHtml(token: string, hasWebhook: boolean): string {
 	return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -356,6 +356,21 @@ export function getDashboardHtml(token: string): string {
     .action-btn-qr:hover:not(:disabled) { background: var(--teal-glow); border-color: var(--teal); }
     .action-btn-logout { border-color: rgba(240,96,96,.25); color: var(--red); }
     .action-btn-logout:hover:not(:disabled) { background: var(--red-glow); border-color: var(--red); }
+    .card-webhook { display: flex; flex-direction: column; gap: .4rem; }
+    .webhook-label { font-size: .65rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .webhook-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .webhook-chip {
+      font-size: .65rem; font-weight: 600;
+      padding: .2rem .55rem; border-radius: 100px;
+      border: 1px solid transparent; cursor: pointer; font-family: inherit;
+      letter-spacing: .04em; background: transparent;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .webhook-chip:disabled { opacity: .35; cursor: not-allowed; }
+    .chip-bound   { background: rgba(34,199,139,.08); color: var(--green);  border-color: rgba(34,199,139,.35); }
+    .chip-bound:hover:not(:disabled)   { background: rgba(34,199,139,.18); }
+    .chip-unbound { background: rgba(77,90,122,.1);   color: var(--muted); border-color: var(--border2); }
+    .chip-unbound:hover:not(:disabled) { background: var(--surface3); color: var(--text2); }
 
     /* ── Toast ── */
     .toast-wrap {
@@ -542,6 +557,7 @@ export function getDashboardHtml(token: string): string {
 
   <script>
     const ACTION_TOKEN = '${token}';
+    const HAS_WEBHOOK  = ${hasWebhook ? "true" : "false"};
 
     const grid       = document.getElementById('grid');
     const footerTs   = document.getElementById('footer-ts');
@@ -603,12 +619,25 @@ export function getDashboardHtml(token: string): string {
     const cardMap = new Map();
     let showingEmpty = true;
 
+    function buildWebhookHTML(name, availableHandlers, boundHandlers) {
+      if (!HAS_WEBHOOK || !availableHandlers || !availableHandlers.length) return '';
+      const n = name.replace(/"/g, '&quot;');
+      const chips = availableHandlers.map(h => {
+        const bound  = boundHandlers && boundHandlers.includes(h.key);
+        const cls    = bound ? 'webhook-chip chip-bound' : 'webhook-chip chip-unbound';
+        const method = h.key.split('.')[1] ?? h.key;
+        const hk     = h.key.replace(/"/g, '&quot;');
+        return \`<button class="\${cls}" title="\${h.event} · \${h.type}" data-action="webhook-toggle" data-handler="\${hk}" data-bound="\${bound}" data-client="\${n}">\${method}</button>\`;
+      }).join('');
+      return \`<div class="card-webhook"><span class="webhook-label">Webhook</span><div class="webhook-chips">\${chips}</div></div>\`;
+    }
+
     function buildActionsHTML(status, name) {
       if (status === 'initializing') return '';
       const n = name.replace(/"/g, '&quot;');
-      const restart  = \`<button class="action-btn action-btn-restart" data-action="restart"   data-client="\${n}">↺ Restart</button>\`;
-      const forceQr  = \`<button class="action-btn action-btn-qr"      data-action="force-qr" data-client="\${n}">⟳ Force QR</button>\`;
-      const logout   = \`<button class="action-btn action-btn-logout"   data-action="logout"   data-client="\${n}">⏏ Logout</button>\`;
+      const restart = \`<button class="action-btn action-btn-restart" data-action="restart"   data-client="\${n}">↺ Restart</button>\`;
+      const forceQr = \`<button class="action-btn action-btn-qr"      data-action="force-qr" data-client="\${n}">⟳ Force QR</button>\`;
+      const logout  = \`<button class="action-btn action-btn-logout"   data-action="logout"   data-client="\${n}">⏏ Logout</button>\`;
       const btns = (status === 'ready' || status === 'authenticated')
         ? restart + forceQr + logout
         : restart;
@@ -617,21 +646,35 @@ export function getDashboardHtml(token: string): string {
 
     const ACTION_LABELS = { restart: 'Restarting', 'force-qr': 'Forcing new QR', logout: 'Logging out' };
 
-    async function doAction(name, action) {
+    async function doAction(name, action, extra) {
       if (action === 'restart'  && !await showConfirm(\`Restart "\${name}"?\`, 'default')) return;
       if (action === 'logout'   && !await showConfirm(\`Logout "\${name}"?\\nThis will require scanning a new QR code.\`)) return;
       if (action === 'force-qr' && !await showConfirm(\`Force new QR for "\${name}"?\\nCurrent session will be logged out.\`)) return;
 
       const card = cardMap.get(name);
-      card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+      if (action === 'webhook-toggle') {
+        card?.querySelectorAll('.webhook-chip').forEach(b => b.disabled = true);
+      } else {
+        card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+      }
+
+      const payload = action === 'webhook-toggle'
+        ? { action, handler: extra.handler, bound: !extra.bound }
+        : { action };
+
       try {
         const res = await fetch(\`./api/clients/\${encodeURIComponent(name)}/action\`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Action-Token': ACTION_TOKEN },
-          body: JSON.stringify({ action }),
+          body: JSON.stringify(payload),
         });
-        if (res.ok) showToast(\`\${ACTION_LABELS[action] ?? action} \${name}…\`, 'ok');
-        else showToast('Action failed', 'err');
+        if (res.ok) {
+          const method = extra.handler?.split('.')[1] ?? extra.handler;
+          if (action === 'webhook-toggle') showToast(\`\${extra.bound ? 'Unbound' : 'Bound'} \${method} on \${name}\`, 'ok');
+          else showToast(\`\${ACTION_LABELS[action] ?? action} \${name}…\`, 'ok');
+        } else {
+          showToast('Action failed', 'err');
+        }
       } catch {
         showToast('Could not reach server', 'err');
       }
@@ -684,8 +727,9 @@ export function getDashboardHtml(token: string): string {
       const phoneHTML = c.phone
         ? \`<span class="meta-label">number</span><span class="prefix-tag phone-tag">\${c.phone}</span>\`
         : '';
+      const boundKey = (c.webhookBoundHandlers ?? []).join(',');
       return \`
-        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}" data-status-at="\${c.statusAt}">
+        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}" data-status-at="\${c.statusAt}" data-webhook-bound-handlers="\${boundKey}">
           <div class="card-head">
             <div>
               <span class="client-name">\${c.name}</span>
@@ -701,6 +745,7 @@ export function getDashboardHtml(token: string): string {
             <span class="prefix-tag">\${c.prefix}</span>
             \${phoneHTML}
           </div>
+          \${buildWebhookHTML(c.name, c.webhookAvailableHandlers, c.webhookBoundHandlers)}
           <div class="card-duration">In this state for <strong>\${since(c.statusAt)}</strong></div>
           \${c.qr ? buildQrHTML(c.qr) : ''}
           \${buildActionsHTML(c.status, c.name)}
@@ -709,19 +754,38 @@ export function getDashboardHtml(token: string): string {
     }
 
     function patchCard(el, c) {
-      if (el.dataset.status !== c.status) {
+      const statusChanged = el.dataset.status !== c.status;
+      const newBoundKey   = (c.webhookBoundHandlers ?? []).join(',');
+      const boundChanged  = HAS_WEBHOOK && el.dataset.webhookBoundHandlers !== newBoundKey;
+
+      if (statusChanged) {
         el.className = 'card card-' + c.status;
-        el.dataset.status = c.status;
+        el.dataset.status   = c.status;
         el.dataset.statusAt = c.statusAt;
         const badge = el.querySelector('.badge');
         badge.className = 'badge badge-' + c.status;
         el.querySelector('.badge-label').textContent = LABEL[c.status] || c.status;
+      }
 
+      if (statusChanged) {
         const existing = el.querySelector('.card-actions');
         if (existing) existing.remove();
         const newActions = buildActionsHTML(c.status, c.name);
         if (newActions) el.insertAdjacentHTML('beforeend', newActions);
       }
+
+      if (boundChanged) {
+        el.dataset.webhookBoundHandlers = newBoundKey;
+        const existing = el.querySelector('.card-webhook');
+        if (existing) existing.remove();
+        const newWebhook = buildWebhookHTML(c.name, c.webhookAvailableHandlers, c.webhookBoundHandlers);
+        if (newWebhook) {
+          const duration = el.querySelector('.card-duration');
+          duration.insertAdjacentHTML('beforebegin', newWebhook);
+        }
+      }
+
+
 
       const existingPN = el.querySelector('.client-pushname');
       if (c.pushname && !existingPN) {
@@ -823,7 +887,9 @@ export function getDashboardHtml(token: string): string {
 
     document.addEventListener('click', e => {
       const btn = e.target.closest('[data-action]');
-      if (btn) doAction(btn.dataset.client, btn.dataset.action);
+      if (!btn) return;
+      const extra = { handler: btn.dataset.handler, bound: btn.dataset.bound === 'true' };
+      doAction(btn.dataset.client, btn.dataset.action, extra);
     });
 
     document.addEventListener('keydown', e => {

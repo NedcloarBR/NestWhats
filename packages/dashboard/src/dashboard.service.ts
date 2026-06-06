@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { IncomingMessage, Server, ServerResponse, createServer } from "node:http";
+import {
+	IncomingMessage,
+	Server,
+	ServerResponse,
+	createServer,
+} from "node:http";
 import {
 	Inject,
 	Injectable,
@@ -7,9 +12,16 @@ import {
 	OnApplicationShutdown,
 	OnModuleInit,
 } from "@nestjs/common";
+import { ModuleRef } from "@nestjs/core";
 import { ClientStatus, ClientsRegistryService } from "nestwhats";
-import type { NestWhatsDashboardOptions } from "./dashboard-options.interface";
-import { DASHBOARD_OPTIONS } from "./dashboard.constants";
+import type {
+	NestWhatsDashboardOptions,
+	WebhookServicePort,
+} from "./dashboard-options.interface";
+import {
+	DASHBOARD_OPTIONS,
+	WEBHOOK_SERVICE_TOKEN,
+} from "./dashboard.constants";
 import { getDashboardHtml, getLoginHtml } from "./dashboard.html";
 
 @Injectable()
@@ -19,15 +31,32 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 	private readonly sseClients = new Set<ServerResponse>();
 	private readonly actionToken = randomUUID();
 	private unsubscribeRegistry?: () => void;
+	private unsubscribeWebhook?: () => void;
 	private readonly sessions = new Set<string>();
+
+	private webhookService?: WebhookServicePort;
 
 	public constructor(
 		@Inject(DASHBOARD_OPTIONS)
 		private readonly options: NestWhatsDashboardOptions,
 		private readonly clientsRegistry: ClientsRegistryService,
+		private readonly moduleRef: ModuleRef,
 	) {}
 
 	public onModuleInit(): void {
+		if (this.options.webhook) {
+			try {
+				this.webhookService = this.moduleRef.get<WebhookServicePort>(
+					WEBHOOK_SERVICE_TOKEN,
+					{ strict: false },
+				);
+			} catch {
+				this.logger.warn(
+					"webhook: true is set but NestWhatsMessagingModule is not imported — webhook controls will be hidden",
+				);
+			}
+		}
+
 		const port = this.options.port ?? 4000;
 		const path = this.options.path ?? "nestwhats";
 
@@ -35,10 +64,19 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 			this.broadcastSse(),
 		);
 
+		if (this.webhookService) {
+			this.unsubscribeWebhook = this.webhookService.subscribe(() =>
+				this.broadcastSse(),
+			);
+		}
+
 		this.server = createServer((req, res) => {
 			const url = req.url ?? "/";
 
-			if (req.method === "POST" && (url === `/${path}/auth` || url === "/auth")) {
+			if (
+				req.method === "POST" &&
+				(url === `/${path}/auth` || url === "/auth")
+			) {
 				const chunks: Buffer[] = [];
 				req.on("data", (chunk: Buffer) => chunks.push(chunk));
 				req.on("end", () => {
@@ -54,7 +92,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 					return;
 				}
 				res.writeHead(200, { "Content-Type": "text/html" });
-				res.end(getDashboardHtml(this.actionToken));
+				res.end(getDashboardHtml(this.actionToken, this.hasWebhook));
 				return;
 			}
 
@@ -66,7 +104,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 
 			if (url === `/${path}/api/clients` || url === "/api/clients") {
 				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify(this.clientsRegistry.getSummary()));
+				res.end(JSON.stringify(this.buildPayload()));
 				return;
 			}
 
@@ -78,9 +116,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 					"X-Accel-Buffering": "no",
 				});
 				res.write(": connected\n\n");
-				res.write(
-					`data: ${JSON.stringify(this.clientsRegistry.getSummary())}\n\n`,
-				);
+				res.write(`data: ${JSON.stringify(this.buildPayload())}\n\n`);
 
 				this.sseClients.add(res);
 
@@ -94,11 +130,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 
 			const actionMatch =
 				req.method === "POST"
-					? url.match(
-							new RegExp(
-								`^(?:/${path})?/api/clients/([^/]+)/action$`,
-							),
-						)
+					? url.match(new RegExp(`^(?:/${path})?/api/clients/([^/]+)/action$`))
 					: null;
 
 			if (actionMatch) {
@@ -111,11 +143,7 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 				const chunks: Buffer[] = [];
 				req.on("data", (chunk: Buffer) => chunks.push(chunk));
 				req.on("end", () => {
-					void this.handleAction(
-						name,
-						Buffer.concat(chunks).toString(),
-						res,
-					);
+					void this.handleAction(name, Buffer.concat(chunks).toString(), res);
 				});
 				return;
 			}
@@ -143,14 +171,15 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 			return;
 		}
 
-		let action: string;
+		let body: { action: string; handler?: string; bound?: boolean };
 		try {
-			({ action } = JSON.parse(rawBody) as { action: string });
+			body = JSON.parse(rawBody) as typeof body;
 		} catch {
 			res.writeHead(400, { "Content-Type": "text/plain" });
 			res.end("Invalid body");
 			return;
 		}
+		const { action } = body;
 
 		try {
 			if (action === "logout") {
@@ -171,6 +200,19 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 						`[${name}] Force QR failed: ${err instanceof Error ? err.message : String(err)}`,
 					);
 				});
+			} else if (action === "webhook-toggle" && body.handler) {
+				if (body.bound) {
+					this.webhookService?.register({
+						client: name,
+						handlers: [body.handler],
+					});
+				} else {
+					this.webhookService?.unregister({
+						client: name,
+						handlers: [body.handler],
+					});
+				}
+				this.broadcastSse();
 			} else {
 				res.writeHead(400, { "Content-Type": "text/plain" });
 				res.end("Unknown action");
@@ -225,13 +267,31 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		res.end(JSON.stringify({ ok: true }));
 	}
 
+	private get hasWebhook(): boolean {
+		return !!this.options.webhook && !!this.webhookService;
+	}
+
+	private buildPayload() {
+		const availableHandlers = this.hasWebhook
+			? this.webhookService?.getHandlers()
+			: null;
+		return this.clientsRegistry.getSummary().map((c) => ({
+			...c,
+			webhookAvailableHandlers: availableHandlers,
+			webhookBoundHandlers: this.hasWebhook
+				? this.webhookService?.getBoundHandlers({ client: c.name })
+				: null,
+		}));
+	}
+
 	private broadcastSse(): void {
-		const payload = `data: ${JSON.stringify(this.clientsRegistry.getSummary())}\n\n`;
+		const payload = `data: ${JSON.stringify(this.buildPayload())}\n\n`;
 		for (const res of this.sseClients) res.write(payload);
 	}
 
 	public onApplicationShutdown(): Promise<void> {
 		this.unsubscribeRegistry?.();
+		this.unsubscribeWebhook?.();
 		for (const res of this.sseClients) res.end();
 		this.sseClients.clear();
 
