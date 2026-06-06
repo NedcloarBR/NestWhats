@@ -9,7 +9,11 @@ import { ExplorerService } from "./nestwhats-explorer.service";
 @Global()
 @Module({
 	imports: [DiscoveryModule, CommandsModule, ListenersModule],
-	providers: [ExplorerService, ClientsRegistryService, NestWhatsHealthIndicator],
+	providers: [
+		ExplorerService,
+		ClientsRegistryService,
+		NestWhatsHealthIndicator,
+	],
 	exports: [
 		CommandsModule,
 		ListenersModule,

@@ -1,5 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { ClientStatus, ClientsRegistryService } from "./clients-registry.service";
+import {
+	ClientStatus,
+	ClientsRegistryService,
+} from "./clients-registry.service";
 import { CommandsRegistryService } from "./commands/commands-registry.service";
 import { ListenerRegistryService } from "./listeners/listener-registry.service";
 

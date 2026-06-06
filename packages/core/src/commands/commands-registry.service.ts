@@ -5,7 +5,10 @@ import { CommandDiscovery } from "./command.discovery";
 export class CommandsRegistryService {
 	private readonly logger = new Logger(CommandsRegistryService.name);
 	public readonly cache = new Map<string, CommandDiscovery>();
-	public readonly prefixCache = new Map<string, Map<string, CommandDiscovery>>();
+	public readonly prefixCache = new Map<
+		string,
+		Map<string, CommandDiscovery>
+	>();
 
 	public add(command: CommandDiscovery) {
 		const customPrefix = command.getPrefix();
@@ -43,14 +46,18 @@ export class CommandsRegistryService {
 		const name = command.getName();
 
 		if (map.has(name)) {
-			this.logger.warn(`Command : ${name} with prefix "${prefix}" already exists`);
+			this.logger.warn(
+				`Command : ${name} with prefix "${prefix}" already exists`,
+			);
 		}
 
 		map.set(name, command);
 
 		for (const alias of command.getAliases()) {
 			if (map.has(alias)) {
-				this.logger.warn(`Command alias: ${alias} with prefix "${prefix}" already exists`);
+				this.logger.warn(
+					`Command alias: ${alias} with prefix "${prefix}" already exists`,
+				);
 			}
 			map.set(alias, command);
 		}

@@ -12,10 +12,14 @@ function extractDdi(phone: string): string | undefined {
 }
 
 export class PhoneCountryResolver implements LocaleResolver {
-	public async resolve(context: NestWhatsExecutionContext): Promise<string | undefined> {
+	public async resolve(
+		context: NestWhatsExecutionContext,
+	): Promise<string | undefined> {
 		const args = context.getContext<"message">();
 		if (!args) return undefined;
-		const message = (Array.isArray(args) ? args[0] : args) as Message | undefined;
+		const message = (Array.isArray(args) ? args[0] : args) as
+			| Message
+			| undefined;
 		if (!message) return undefined;
 
 		const phone = await this.extractPhone(message);

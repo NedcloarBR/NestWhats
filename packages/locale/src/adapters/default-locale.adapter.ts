@@ -12,7 +12,10 @@ export class DefaultLocaleAdapter extends BaseLocaleAdapter<DefaultLocaleAdapter
 		locale: string,
 		placeholders?: Record<string, string>,
 	): string {
-		const translations = (this._locales[locale] ?? {}) as Record<string, string>;
+		const translations = (this._locales[locale] ?? {}) as Record<
+			string,
+			string
+		>;
 		const translation = translations[key] ?? this.getFallbackTranslation(key);
 
 		return translation.replace(

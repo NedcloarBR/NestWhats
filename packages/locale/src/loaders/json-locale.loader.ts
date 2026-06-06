@@ -3,19 +3,19 @@ import * as path from "node:path";
 import { BaseLocaleLoader } from "./base-locale.loader";
 
 export interface JSONLocaleLoaderOptions {
-  basePath: string;
+	basePath: string;
 	ignore?: string[];
 }
 
 const DEFAULT_IGNORE = [".git", ".gitkeep", "crowdin.yml", "README.md"];
 
 export class JSONLocaleLoader extends BaseLocaleLoader<JSONLocaleLoaderOptions> {
-  public constructor(options: JSONLocaleLoaderOptions) {
-    super({
-      ignore: options.ignore ?? DEFAULT_IGNORE,
-      ...options,
-    });
-  }
+	public constructor(options: JSONLocaleLoaderOptions) {
+		super({
+			ignore: options.ignore ?? DEFAULT_IGNORE,
+			...options,
+		});
+	}
 
 	public async load(): Promise<Record<string, Record<string, unknown>>> {
 		const locales: Record<string, Record<string, unknown>> = {};
@@ -41,7 +41,9 @@ export class JSONLocaleLoader extends BaseLocaleLoader<JSONLocaleLoaderOptions> 
 
 	private loadDirectory(dir: string): Record<string, unknown> {
 		const result: Record<string, unknown> = {};
-		const entries = fs.readdirSync(dir).filter((f) => !this.options.ignore?.includes(f));
+		const entries = fs
+			.readdirSync(dir)
+			.filter((f) => !this.options.ignore?.includes(f));
 
 		for (const entry of entries) {
 			const entryPath = path.join(dir, entry);

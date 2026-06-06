@@ -11,12 +11,14 @@
 		"build": "nx run-many -t build",
 		"build:core": "nx run core:build",
 		"build:dashboard": "nx run dashboard:build",
+		"build:messaging": "nx run messaging:build",
 		"check": "biome check --write packages/*/src",
 		"format": "biome format --write packages/*/src",
 		"lint": "biome lint packages/*/src",
 		"release:core": "yarn workspace nestwhats release-it",
 		"release:dashboard": "yarn workspace @nestwhats/dashboard release-it",
 		"release:locale": "yarn workspace @nestwhats/locale release-it",
+		"release:messaging": "yarn workspace @nestwhats/messaging release-it",
 		"prepare": "husky"
 	},
 	"devDependencies": {

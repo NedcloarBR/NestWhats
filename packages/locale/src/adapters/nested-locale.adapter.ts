@@ -16,7 +16,8 @@ export class NestedLocaleAdapter extends BaseLocaleAdapter<NestedLocaleAdapterOp
 	): string {
 		const translations = this._locales[locale] ?? {};
 		const translation =
-			this.findTranslation(translations, key) ?? this.getFallbackTranslation(key);
+			this.findTranslation(translations, key) ??
+			this.getFallbackTranslation(key);
 
 		return translation.replace(
 			/{{\s*([^}\s]+)\s*}}/g,
@@ -24,7 +25,10 @@ export class NestedLocaleAdapter extends BaseLocaleAdapter<NestedLocaleAdapterOp
 		);
 	}
 
-	private findTranslation(translations: TranslationData, key: string): string | undefined {
+	private findTranslation(
+		translations: TranslationData,
+		key: string,
+	): string | undefined {
 		const keys = key.split(".");
 		let current: string | TranslationData = translations;
 

@@ -1,10 +1,20 @@
-import { type CallHandler, type ExecutionContext, Inject, Injectable, type NestInterceptor } from "@nestjs/common";
+import {
+	type CallHandler,
+	type ExecutionContext,
+	Inject,
+	Injectable,
+	type NestInterceptor,
+} from "@nestjs/common";
 import { ModuleRef } from "@nestjs/core";
 import { NestWhatsExecutionContext } from "nestwhats";
 import type { Observable } from "rxjs";
 import { BaseLocaleAdapter } from "../adapters/base-locale.adapter";
 import type { LocaleResolver, NestWhatsLocaleOptions } from "../interfaces";
-import { LOCALE_ADAPTER, LOCALE_OPTIONS, LOCALE_RESOLVERS } from "../locale.constants";
+import {
+	LOCALE_ADAPTER,
+	LOCALE_OPTIONS,
+	LOCALE_RESOLVERS,
+} from "../locale.constants";
 import { LocaleStorage } from "../locale.context";
 
 @Injectable()
@@ -12,11 +22,15 @@ export class LocalizationInterceptor implements NestInterceptor {
 	public constructor(
 		private readonly moduleRef: ModuleRef,
 		@Inject(LOCALE_ADAPTER) private readonly adapter: BaseLocaleAdapter,
-		@Inject(LOCALE_RESOLVERS) private readonly resolvers: (LocaleResolver | Function)[],
+		@Inject(LOCALE_RESOLVERS)
+		private readonly resolvers: (LocaleResolver | Function)[],
 		@Inject(LOCALE_OPTIONS) private readonly options: NestWhatsLocaleOptions,
 	) {}
 
-	public async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+	public async intercept(
+		context: ExecutionContext,
+		next: CallHandler,
+	): Promise<Observable<any>> {
 		if (context.getType<string>() !== "nestwhats") return next.handle();
 
 		const nestwhatsContext = NestWhatsExecutionContext.create(context);
@@ -29,7 +43,8 @@ export class LocalizationInterceptor implements NestInterceptor {
 		}
 
 		const resolvedLocale = locale ?? "en-US";
-		const translate = (key: string, ...args: any[]) => this.adapter.getTranslation(key, resolvedLocale, ...args);
+		const translate = (key: string, ...args: any[]) =>
+			this.adapter.getTranslation(key, resolvedLocale, ...args);
 
 		return LocaleStorage.run(translate, next.handle.bind(next));
 	}

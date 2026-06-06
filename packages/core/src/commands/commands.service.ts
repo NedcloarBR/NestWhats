@@ -6,7 +6,11 @@ import { CommandsRegistryService } from "./commands-registry.service";
 export class CommandsService {
 	public constructor(private readonly registry: CommandsRegistryService) {}
 
-	public async handle(message: Message, clientName: string, prefix: string): Promise<void> {
+	public async handle(
+		message: Message,
+		clientName: string,
+		prefix: string,
+	): Promise<void> {
 		if (!message?.body?.length) return;
 
 		const content = message.body.toLowerCase();

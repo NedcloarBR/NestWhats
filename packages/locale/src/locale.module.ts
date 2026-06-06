@@ -1,14 +1,26 @@
-import { type DynamicModule, Inject, Module, OnModuleInit, type Provider } from "@nestjs/common";
+import {
+	type DynamicModule,
+	Inject,
+	Module,
+	OnModuleInit,
+	type Provider,
+} from "@nestjs/common";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { BaseLocaleAdapter } from "./adapters/base-locale.adapter";
 import { LocalizationInterceptor } from "./interceptors/localization.interceptor";
 import { type NestWhatsLocaleOptions } from "./interfaces";
-import { LOCALE_ADAPTER, LOCALE_OPTIONS, LOCALE_RESOLVERS } from "./locale.constants";
+import {
+	LOCALE_ADAPTER,
+	LOCALE_OPTIONS,
+	LOCALE_RESOLVERS,
+} from "./locale.constants";
 
 @Module({})
 export class NestWhatsLocaleModule implements OnModuleInit {
 	public static forRoot(options: NestWhatsLocaleOptions): DynamicModule {
-		const resolvers = Array.isArray(options.resolvers) ? options.resolvers : [options.resolvers];
+		const resolvers = Array.isArray(options.resolvers)
+			? options.resolvers
+			: [options.resolvers];
 
 		const providers: Provider[] = [
 			{ provide: LOCALE_ADAPTER, useValue: options.adapter },

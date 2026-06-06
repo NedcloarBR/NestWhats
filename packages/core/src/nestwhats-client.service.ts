@@ -59,7 +59,10 @@ export class NestWhatsClientService
 		});
 
 		this.client.on(Events.AUTHENTICATED, () => {
-			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Authenticated);
+			this.clientsRegistry.updateStatus(
+				this.options.name,
+				ClientStatus.Authenticated,
+			);
 		});
 
 		this.client.on(Events.READY, () => {
@@ -72,11 +75,17 @@ export class NestWhatsClientService
 		});
 
 		this.client.on(Events.DISCONNECTED, () => {
-			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Disconnected);
+			this.clientsRegistry.updateStatus(
+				this.options.name,
+				ClientStatus.Disconnected,
+			);
 		});
 
 		this.client.on(Events.AUTHENTICATION_FAILURE, () => {
-			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Disconnected);
+			this.clientsRegistry.updateStatus(
+				this.options.name,
+				ClientStatus.Disconnected,
+			);
 		});
 	}
 
@@ -91,7 +100,11 @@ export class NestWhatsClientService
 		}
 
 		this.client.on(Events.MESSAGE_CREATE, (message) =>
-			this.commandsService.handle(message, this.options.name, this.options.prefix),
+			this.commandsService.handle(
+				message,
+				this.options.name,
+				this.options.prefix,
+			),
 		);
 
 		this.client.initialize().catch((err: unknown) => {
