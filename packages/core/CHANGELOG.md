@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [3.1.1](https://github.com/NedcloarBR/NestWhats/compare/v3.1.0...v3.1.1) - (2026-06-07)
+
+## Bug Fixes
+
+- **core:** Fix @Args in @Subcommand handlers ([4b57bdc](https://github.com/NedcloarBR/NestWhats/commit/4b57bdc9a0cf4533d27338f31108c0dff4ea66c9))
+
 # [3.1.0](https://github.com/NedcloarBR/NestWhats/compare/messaging-v1.0.2...v3.1.0) - (2026-06-07)
 
 ## Features
