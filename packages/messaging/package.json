@@ -1,7 +1,7 @@
 {
 	"name": "@nestwhats/messaging",
 	"description": "Messaging layer for nestwhats — send messages programmatically and bind WhatsApp events for outbound dispatch",
-	"version": "1.0.0",
+	"version": "0.0.0",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
