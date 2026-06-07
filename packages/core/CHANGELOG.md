@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [3.0.0](https://github.com/NedcloarBR/NestWhats/compare/locale-v1.0.0...v3.0.0) - (2026-06-07)
+
 # [2.4.0](https://github.com/NedcloarBR/NestWhats/compare/v2.3.1...v2.4.0) - (2026-05-27)
 
 ## Features
