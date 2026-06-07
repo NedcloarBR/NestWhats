@@ -19,6 +19,9 @@
   <a href="https://www.npmjs.com/package/@nestwhats/locale">
     <img src="https://img.shields.io/npm/v/@nestwhats/locale?label=%40nestwhats%2Flocale" alt="@nestwhats/locale version">
   </a>
+  <a href="https://www.npmjs.com/package/@nestwhats/messaging">
+    <img src="https://img.shields.io/npm/v/@nestwhats/messaging?label=%40nestwhats%2Fmessaging" alt="@nestwhats/messaging version">
+  </a>
 </p>
 
 ---
@@ -31,7 +34,9 @@ This is the NestWhats monorepo. Each package is published independently — inst
 |---------|---------|-------------|
 | [`nestwhats`](./packages/core) | [![npm](https://img.shields.io/npm/v/nestwhats)](https://www.npmjs.com/package/nestwhats) | Core module — whatsapp-web.js wrapper for NestJS |
 | [`@nestwhats/dashboard`](./packages/dashboard) | [![npm](https://img.shields.io/npm/v/@nestwhats/dashboard)](https://www.npmjs.com/package/@nestwhats/dashboard) | Web dashboard for monitoring multi-client bots |
+| [`@nestwhats/messaging`](./packages/messaging) | [![npm](https://img.shields.io/npm/v/@nestwhats/messaging)](https://www.npmjs.com/package/@nestwhats/messaging) | Webhook event binding with optional JSON file persistence |
 | [`@nestwhats/locale`](./packages/locale) | [![npm](https://img.shields.io/npm/v/@nestwhats/locale)](https://www.npmjs.com/package/@nestwhats/locale) | Internationalization (i18n) support for NestWhats bots |
+| `@nestwhats/metrics` | _planned_ | Prometheus/OpenTelemetry metrics — messages, commands, client status; replaces the health indicator in core |
 
 ## Development
 
@@ -47,6 +52,8 @@ yarn build
 # Build a specific package
 yarn build:core
 yarn build:dashboard
+yarn build:locale
+yarn build:messaging
 ```
 
 ## Release
@@ -56,6 +63,8 @@ Each package has its own release cycle and changelog.
 ```bash
 yarn release:core
 yarn release:dashboard
+yarn release:locale
+yarn release:messaging
 ```
 
 ## License

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { CommandDiscovery } from "./command.discovery";
+import { SubcommandDiscovery } from "./subcommand.discovery";
 
 @Injectable()
 export class CommandsRegistryService {
@@ -8,6 +9,10 @@ export class CommandsRegistryService {
 	public readonly prefixCache = new Map<
 		string,
 		Map<string, CommandDiscovery>
+	>();
+	public readonly subcommandCache = new Map<
+		string,
+		Map<string, SubcommandDiscovery>
 	>();
 
 	public add(command: CommandDiscovery) {
@@ -61,6 +66,36 @@ export class CommandsRegistryService {
 			}
 			map.set(alias, command);
 		}
+	}
+
+	public addSubcommand(sub: SubcommandDiscovery) {
+		const parent = sub.getParent();
+		if (!this.subcommandCache.has(parent)) {
+			this.subcommandCache.set(parent, new Map());
+		}
+		const map = this.subcommandCache.get(parent) as Map<
+			string,
+			SubcommandDiscovery
+		>;
+		const name = sub.getName();
+
+		if (map.has(name)) {
+			this.logger.warn(`Subcommand "${name}" of "${parent}" already exists`);
+		}
+		map.set(name, sub);
+
+		for (const alias of sub.getAliases()) {
+			if (map.has(alias)) {
+				this.logger.warn(
+					`Subcommand alias "${alias}" of "${parent}" already exists`,
+				);
+			}
+			map.set(alias, sub);
+		}
+	}
+
+	public getSub(parent: string, name: string): SubcommandDiscovery | undefined {
+		return this.subcommandCache.get(parent)?.get(name);
 	}
 
 	public getAll(): CommandDiscovery[] {

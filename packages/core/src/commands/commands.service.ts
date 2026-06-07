@@ -20,6 +20,15 @@ export class CommandsService {
 			const cmd = args.shift();
 
 			if (cmd) {
+				const sub = args[0] ? this.registry.getSub(cmd, args[0]) : undefined;
+				if (sub) {
+					const clients = sub.getClients();
+					if (!clients || clients.includes(clientName)) {
+						await sub.execute([message]);
+						return;
+					}
+				}
+
 				const command = this.registry.get(cmd);
 				if (command) {
 					const clients = command.getClients();
@@ -37,6 +46,15 @@ export class CommandsService {
 				const cmd = args.shift();
 
 				if (cmd) {
+					const sub = args[0] ? this.registry.getSub(cmd, args[0]) : undefined;
+					if (sub) {
+						const clients = sub.getClients();
+						if (!clients || clients.includes(clientName)) {
+							await sub.execute([message]);
+							return;
+						}
+					}
+
 					const command = commands.get(cmd);
 					if (command) {
 						const clients = command.getClients();

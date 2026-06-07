@@ -5,6 +5,15 @@ import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-cr
 import { ParamMetadata } from "@nestjs/core/helpers/interfaces";
 import { STATIC_CONTEXT } from "@nestjs/core/injector/constants";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
+import { CommandDiscovery } from "./commands/command.discovery";
+import {
+	COMMAND_GROUP_KEY,
+	CommandGroupMeta,
+} from "./commands/decorators/command-group.decorator";
+import {
+	SubcommandDiscovery,
+	SubcommandMeta,
+} from "./commands/subcommand.discovery";
 import {
 	NestWhatsBaseDiscovery,
 	NestWhatsContextType,
@@ -57,6 +66,73 @@ export class ExplorerService<
 
 				return item;
 			});
+	}
+
+	public exploreCommandGroups(
+		subcommandKey: string | symbol,
+		defaultKey: string | symbol,
+	): { commands: CommandDiscovery[]; subcommands: SubcommandDiscovery[] } {
+		const commands: CommandDiscovery[] = [];
+		const subcommands: SubcommandDiscovery[] = [];
+
+		const wrappers = this.discoveryService.getProviders().filter((w) => {
+			const { instance } = w;
+			const prototype = instance ? Object.getPrototypeOf(instance) : null;
+			return instance && prototype && w.isDependencyTreeStatic();
+		});
+
+		for (const wrapper of wrappers) {
+			const { instance } = wrapper;
+			const groupMeta = this.get<CommandGroupMeta>(
+				COMMAND_GROUP_KEY,
+				instance.constructor,
+			);
+			if (!groupMeta) continue;
+
+			const prototype = Object.getPrototypeOf(instance);
+
+			for (const methodName of this.metadataScanner.getAllMethodNames(
+				prototype,
+			)) {
+				const subMeta = this.get<SubcommandMeta>(
+					subcommandKey,
+					instance[methodName],
+				);
+				if (subMeta) {
+					const sub = new SubcommandDiscovery({
+						...subMeta,
+						parent: groupMeta.name,
+					});
+					sub.setDiscoveryMeta({
+						class: instance.constructor,
+						handler: instance[methodName],
+					});
+					sub.setContextCallback(
+						this.createContextCallback(instance, prototype, methodName),
+					);
+					subcommands.push(sub);
+				}
+
+				const isDefault = this.get(defaultKey, instance[methodName]);
+				if (isDefault !== undefined) {
+					const cmd = new CommandDiscovery({
+						name: groupMeta.name,
+						description: groupMeta.description,
+						client: groupMeta.client,
+					});
+					cmd.setDiscoveryMeta({
+						class: instance.constructor,
+						handler: instance[methodName],
+					});
+					cmd.setContextCallback(
+						this.createContextCallback(instance, prototype, methodName),
+					);
+					commands.push(cmd);
+				}
+			}
+		}
+
+		return { commands, subcommands };
 	}
 
 	private createContextCallback(

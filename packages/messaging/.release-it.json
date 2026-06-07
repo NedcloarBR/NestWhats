@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build messaging",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag messaging-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/messaging/**' && git add CHANGELOG.md && rm -f nestwhats-messaging-*.tgz && npm pack"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag messaging-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/messaging/**' && git add CHANGELOG.md && rm -f nestwhats-messaging-*.tgz && npm pack"
 	}
 }
