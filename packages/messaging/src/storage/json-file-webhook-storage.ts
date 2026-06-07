@@ -6,6 +6,13 @@ import type {
 	WebhookStorageState,
 } from "./webhook-storage.interface";
 
+function migrate(raw: unknown): WebhookStorageState {
+	if (raw && typeof raw === "object" && "bindings" in raw) {
+		return raw as WebhookStorageState;
+	}
+	return { bindings: raw as Record<string, string[]> };
+}
+
 export class JsonFileWebhookStorage implements WebhookStorageAdapter {
 	public constructor(
 		private readonly filePath: string = ".nestwhats/webhook-state.json",
@@ -16,9 +23,9 @@ export class JsonFileWebhookStorage implements WebhookStorageAdapter {
 		try {
 			raw = await readFile(this.filePath, "utf-8");
 		} catch {
-			return {};
+			return { bindings: {} };
 		}
-		return JSON.parse(raw) as WebhookStorageState;
+		return migrate(JSON.parse(raw));
 	}
 
 	public async save(state: WebhookStorageState): Promise<void> {
@@ -38,7 +45,7 @@ export class JsonFileWebhookStorage implements WebhookStorageAdapter {
 				readFile(this.filePath, "utf-8")
 					.then((raw) => {
 						try {
-							onChange(JSON.parse(raw) as WebhookStorageState);
+							onChange(migrate(JSON.parse(raw)));
 						} catch (err) {
 							onChange(null, err as Error);
 						}

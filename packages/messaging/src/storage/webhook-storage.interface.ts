@@ -1,4 +1,13 @@
-export type WebhookStorageState = Record<string, string[]>;
+export interface VirtualClientConfig {
+	name: string;
+	prefix?: string;
+	printQR?: boolean;
+}
+
+export interface WebhookStorageState {
+	bindings: Record<string, string[]>;
+	virtualClients?: VirtualClientConfig[];
+}
 
 export interface WebhookStorageAdapter {
 	load(): WebhookStorageState | Promise<WebhookStorageState>;

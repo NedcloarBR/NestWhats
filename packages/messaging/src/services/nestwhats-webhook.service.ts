@@ -6,14 +6,18 @@ import {
 	OnApplicationShutdown,
 	Optional,
 } from "@nestjs/common";
+import { ModuleRef } from "@nestjs/core";
 import { ClientsRegistryService } from "nestwhats";
 import { WebhookEventDiscovery } from "../discovery/webhook-event.discovery";
 import type {
 	NestWhatsMessagingLoggerOptions,
 	NestWhatsMessagingOptions,
 } from "../messaging-options.interface";
-import { MESSAGING_OPTIONS } from "../messaging.constants";
-import type { WebhookStorageState } from "../storage";
+import {
+	CLIENT_MANAGER_TOKEN,
+	MESSAGING_OPTIONS,
+} from "../messaging.constants";
+import type { VirtualClientConfig, WebhookStorageState } from "../storage";
 import { WebhookEventRegistryService } from "./webhook-event-registry.service";
 
 interface BoundEntry {
@@ -24,6 +28,11 @@ interface BoundEntry {
 export interface WebhookBindOptions {
 	client?: string;
 	handlers?: string[];
+}
+
+interface ClientManagerPort {
+	createClient(options: VirtualClientConfig): Promise<void>;
+	destroyClient(name: string): Promise<void>;
 }
 
 @Injectable()
@@ -37,16 +46,28 @@ export class NestWhatsWebhookService
 	private stopWatcher?: () => void;
 	private lastSavedState?: string;
 	private hasPendingStorageError = false;
+	private clientManager?: ClientManagerPort;
+	private virtualClients: VirtualClientConfig[] = [];
 
 	public constructor(
 		private readonly registry: ClientsRegistryService,
 		private readonly webhookEventRegistry: WebhookEventRegistryService,
+		private readonly moduleRef: ModuleRef,
 		@Optional()
 		@Inject(MESSAGING_OPTIONS)
 		private readonly options?: NestWhatsMessagingOptions,
 	) {}
 
 	public async onApplicationBootstrap(): Promise<void> {
+		try {
+			this.clientManager = this.moduleRef.get<ClientManagerPort>(
+				CLIENT_MANAGER_TOKEN,
+				{ strict: false },
+			);
+		} catch {
+			// NestWhatsClientManagerService not available
+		}
+
 		await this.restoreState();
 
 		if (this.options?.storage?.watch) {
@@ -63,6 +84,7 @@ export class NestWhatsWebhookService
 				const incoming = JSON.stringify(state);
 				const recovering = this.hasPendingStorageError;
 				if (!recovering && incoming === this.lastSavedState) return;
+				this.lastSavedState = incoming;
 				this.hasPendingStorageError = false;
 				if (recovering) {
 					this.log("fileChanged", "Storage file recovered — syncing bindings");
@@ -136,6 +158,35 @@ export class NestWhatsWebhookService
 		this.notify();
 	}
 
+	public async addVirtualClient(config: VirtualClientConfig): Promise<void> {
+		if (!this.clientManager) {
+			this.logger.warn(
+				"NestWhatsClientManagerService not available — cannot create virtual client",
+			);
+			return;
+		}
+		await this.clientManager.createClient(config);
+		if (!this.virtualClients.some((c) => c.name === config.name)) {
+			this.virtualClients.push(config);
+		}
+		void this.persistState();
+		this.notify();
+	}
+
+	public async removeVirtualClient(name: string): Promise<void> {
+		if (!this.clientManager) {
+			this.logger.warn(
+				"NestWhatsClientManagerService not available — cannot destroy virtual client",
+			);
+			return;
+		}
+		await this.clientManager.destroyClient(name);
+		this.virtualClients = this.virtualClients.filter((c) => c.name !== name);
+		this.bindings.delete(name);
+		void this.persistState();
+		this.notify();
+	}
+
 	private _bindHandlers(
 		clientName: string | undefined,
 		filterKeys?: string[],
@@ -204,18 +255,22 @@ export class NestWhatsWebhookService
 	}
 
 	private buildCurrentState(): WebhookStorageState {
-		const state: WebhookStorageState = {};
+		const bindings: Record<string, string[]> = {};
 
 		for (const name of this.registry.getNames()) {
-			state[name] = [];
+			bindings[name] = [];
 		}
-		state.__default__ = [];
+		bindings.__default__ = [];
 
 		for (const [clientKey, entries] of this.bindings) {
-			state[clientKey] = entries.map((e) => e.discovery.getKey());
+			bindings[clientKey] = entries.map((e) => e.discovery.getKey());
 		}
 
-		return state;
+		return {
+			bindings,
+			virtualClients:
+				this.virtualClients.length > 0 ? this.virtualClients : undefined,
+		};
 	}
 
 	private async restoreState(): Promise<void> {
@@ -232,14 +287,21 @@ export class NestWhatsWebhookService
 			return;
 		}
 
+		if (raw.virtualClients?.length && this.clientManager) {
+			for (const vc of raw.virtualClients) {
+				await this.clientManager.createClient(vc);
+				this.virtualClients.push(vc);
+			}
+		}
+
 		const discoveredByKey = new Map(
 			this.webhookEventRegistry.getAll().map((d) => [d.getKey(), d]),
 		);
 
 		let hasStale = false;
-		const clean: WebhookStorageState = {};
+		const cleanBindings: Record<string, string[]> = {};
 
-		for (const [clientKey, handlerKeys] of Object.entries(raw)) {
+		for (const [clientKey, handlerKeys] of Object.entries(raw.bindings)) {
 			const validKeys = handlerKeys.filter((k) => {
 				if (discoveredByKey.has(k)) return true;
 				this.warnOnce(
@@ -249,15 +311,21 @@ export class NestWhatsWebhookService
 				hasStale = true;
 				return false;
 			});
-			if (validKeys.length) clean[clientKey] = validKeys;
+			if (validKeys.length) cleanBindings[clientKey] = validKeys;
 		}
 
 		if (hasStale) {
-			this.lastSavedState = JSON.stringify(clean);
-			await this.options.storage.save(clean);
+			this.lastSavedState = JSON.stringify({
+				bindings: cleanBindings,
+				virtualClients: raw.virtualClients,
+			});
+			await this.options.storage.save({
+				bindings: cleanBindings,
+				virtualClients: raw.virtualClients,
+			});
 		}
 
-		for (const [clientKey, handlerKeys] of Object.entries(clean)) {
+		for (const [clientKey, handlerKeys] of Object.entries(cleanBindings)) {
 			const clientName = clientKey === "__default__" ? undefined : clientKey;
 			this.log(
 				"restore",
@@ -272,7 +340,9 @@ export class NestWhatsWebhookService
 			this.webhookEventRegistry.getAll().map((d) => d.getKey()),
 		);
 
-		for (const [clientKey, newHandlerKeys] of Object.entries(newState)) {
+		for (const [clientKey, newHandlerKeys] of Object.entries(
+			newState.bindings,
+		)) {
 			const clientName = clientKey === "__default__" ? undefined : clientKey;
 			const label = clientName ?? "default";
 			const currentKeys = this.getBoundHandlers({ client: clientName });
@@ -301,7 +371,7 @@ export class NestWhatsWebhookService
 		}
 
 		for (const [clientKey] of this.bindings) {
-			if (!newState[clientKey]) {
+			if (!newState.bindings[clientKey]) {
 				const clientName = clientKey === "__default__" ? undefined : clientKey;
 				const label = clientName ?? "default";
 				this.log(
