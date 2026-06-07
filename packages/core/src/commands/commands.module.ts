@@ -1,9 +1,9 @@
 import { Global, Module, OnModuleInit } from "@nestjs/common";
 import { ExplorerService } from "../nestwhats-explorer.service";
 import { CommandDiscovery } from "./command.discovery";
-import { Command } from "./decorators/command.decorator";
 import { CommandsRegistryService } from "./commands-registry.service";
 import { CommandsService } from "./commands.service";
+import { Command } from "./decorators/command.decorator";
 
 @Global()
 @Module({

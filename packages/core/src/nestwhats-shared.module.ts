@@ -3,8 +3,11 @@ import { DiscoveryModule } from "@nestjs/core";
 import { ClientsRegistryService } from "./clients-registry.service";
 import { CommandsModule } from "./commands/commands.module";
 import { ListenersModule } from "./listeners/listeners.module";
-import { NestWhatsHealthIndicator } from "./nestwhats-health.indicator";
+import { NestWhatsClientManagerService } from "./nestwhats-client-manager.service";
 import { ExplorerService } from "./nestwhats-explorer.service";
+import { NestWhatsHealthIndicator } from "./nestwhats-health.indicator";
+
+const CLIENT_MANAGER_TOKEN = Symbol.for("NESTWHATS::CLIENT_MANAGER");
 
 @Global()
 @Module({
@@ -13,6 +16,11 @@ import { ExplorerService } from "./nestwhats-explorer.service";
 		ExplorerService,
 		ClientsRegistryService,
 		NestWhatsHealthIndicator,
+		NestWhatsClientManagerService,
+		{
+			provide: CLIENT_MANAGER_TOKEN,
+			useExisting: NestWhatsClientManagerService,
+		},
 	],
 	exports: [
 		CommandsModule,
@@ -20,6 +28,8 @@ import { ExplorerService } from "./nestwhats-explorer.service";
 		ExplorerService,
 		ClientsRegistryService,
 		NestWhatsHealthIndicator,
+		NestWhatsClientManagerService,
+		CLIENT_MANAGER_TOKEN,
 	],
 })
 export class NestWhatsSharedModule {}

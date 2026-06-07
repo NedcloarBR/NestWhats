@@ -18,6 +18,7 @@ export interface ClientSummary {
 	qr?: string;
 	pushname?: string;
 	phone?: string;
+	virtual?: boolean;
 }
 
 export interface ClientEntry {
@@ -29,6 +30,7 @@ export interface ClientEntry {
 	qr?: string;
 	pushname?: string;
 	phone?: string;
+	virtual?: boolean;
 }
 
 @Injectable()
@@ -101,9 +103,14 @@ export class ClientsRegistryService {
 		return [...this.registry.values()].map((entry) => entry.name);
 	}
 
+	public remove(name: string): void {
+		this.registry.delete(getClientToken(name));
+		this.notify();
+	}
+
 	public getSummary(): ClientSummary[] {
 		return [...this.registry.values()].map(
-			({ name, prefix, status, statusAt, qr, pushname, phone }) => ({
+			({
 				name,
 				prefix,
 				status,
@@ -111,6 +118,16 @@ export class ClientsRegistryService {
 				qr,
 				pushname,
 				phone,
+				virtual: v,
+			}) => ({
+				name,
+				prefix,
+				status,
+				statusAt,
+				qr,
+				pushname,
+				phone,
+				virtual: v,
 			}),
 		);
 	}

@@ -14,6 +14,69 @@ import { CommandsService } from "./commands/commands.service";
 import { ListenerRegistryService } from "./listeners/listener-registry.service";
 import { NestWhatsClientOptions } from "./nestwhats-options.interface";
 
+export function bindInternalEvents(
+	client: Client,
+	name: string,
+	options: Pick<NestWhatsClientOptions, "printQR">,
+	registry: ClientsRegistryService,
+): void {
+	const logger = new Logger("NestWhatsClient");
+
+	client.on(Events.QR_RECEIVED, async (qr) => {
+		const dataUrl = await toDataURL(qr);
+		registry.updateStatus(name, ClientStatus.QrReceived, dataUrl);
+
+		if (options.printQR) {
+			QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
+				if (err) {
+					logger.error(`[${name}] Error generating QR code: ${err.message}`);
+					return;
+				}
+				logger.verbose(`[${name}] Scan the QR code below to authenticate:`);
+				console.log(url);
+			});
+		}
+	});
+
+	client.on(Events.AUTHENTICATED, () => {
+		registry.updateStatus(name, ClientStatus.Authenticated);
+	});
+
+	client.on(Events.READY, () => {
+		registry.updateStatus(name, ClientStatus.Ready);
+		registry.updateInfo(name, client.info.pushname, client.info.wid.user);
+	});
+
+	client.on(Events.DISCONNECTED, () => {
+		registry.updateStatus(name, ClientStatus.Disconnected);
+	});
+
+	client.on(Events.AUTHENTICATION_FAILURE, () => {
+		registry.updateStatus(name, ClientStatus.Disconnected);
+	});
+}
+
+export function bindListeners(
+	client: Client,
+	name: string,
+	prefix: string,
+	listenerRegistry: ListenerRegistryService,
+	commandsService: CommandsService,
+): void {
+	for (const listener of listenerRegistry.getAll()) {
+		const clients = listener.getClients();
+		if (clients && !clients.includes(name)) continue;
+
+		client[listener.getType()](listener.getEvent(), (...args) =>
+			listener.execute(args),
+		);
+	}
+
+	client.on(Events.MESSAGE_CREATE, (message) =>
+		commandsService.handle(message, name, prefix),
+	);
+}
+
 export class NestWhatsClientService
 	implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
@@ -34,77 +97,21 @@ export class NestWhatsClientService
 			prefix: this.options.prefix,
 		});
 
-		this.client.on(Events.QR_RECEIVED, async (qr) => {
-			const dataUrl = await toDataURL(qr);
-			this.clientsRegistry.updateStatus(
-				this.options.name,
-				ClientStatus.QrReceived,
-				dataUrl,
-			);
-
-			if (this.options.printQR) {
-				QRCodeString(qr, { type: "terminal", small: true }, (err, url) => {
-					if (err) {
-						this.logger.error(
-							`[${this.options.name}] Error generating QR code: ${err.message}`,
-						);
-						return;
-					}
-					this.logger.verbose(
-						`[${this.options.name}] Scan the QR code below to authenticate:`,
-					);
-					console.log(url);
-				});
-			}
-		});
-
-		this.client.on(Events.AUTHENTICATED, () => {
-			this.clientsRegistry.updateStatus(
-				this.options.name,
-				ClientStatus.Authenticated,
-			);
-		});
-
-		this.client.on(Events.READY, () => {
-			this.clientsRegistry.updateStatus(this.options.name, ClientStatus.Ready);
-			this.clientsRegistry.updateInfo(
-				this.options.name,
-				this.client.info.pushname,
-				this.client.info.wid.user,
-			);
-		});
-
-		this.client.on(Events.DISCONNECTED, () => {
-			this.clientsRegistry.updateStatus(
-				this.options.name,
-				ClientStatus.Disconnected,
-			);
-		});
-
-		this.client.on(Events.AUTHENTICATION_FAILURE, () => {
-			this.clientsRegistry.updateStatus(
-				this.options.name,
-				ClientStatus.Disconnected,
-			);
-		});
+		bindInternalEvents(
+			this.client,
+			this.options.name,
+			this.options,
+			this.clientsRegistry,
+		);
 	}
 
 	public onApplicationBootstrap(): void {
-		for (const listener of this.listenerRegistry.getAll()) {
-			const clients = listener.getClients();
-			if (clients && !clients.includes(this.options.name)) continue;
-
-			this.client[listener.getType()](listener.getEvent(), (...args) =>
-				listener.execute(args),
-			);
-		}
-
-		this.client.on(Events.MESSAGE_CREATE, (message) =>
-			this.commandsService.handle(
-				message,
-				this.options.name,
-				this.options.prefix,
-			),
+		bindListeners(
+			this.client,
+			this.options.name,
+			this.options.prefix,
+			this.listenerRegistry,
+			this.commandsService,
 		);
 
 		this.client.initialize().catch((err: unknown) => {
