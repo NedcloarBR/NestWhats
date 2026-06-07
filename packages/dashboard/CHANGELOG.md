@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [dashboard-v2.0.0](https://github.com/NedcloarBR/NestWhats/compare/v3.0.0...dashboard-v2.0.0) - (2026-06-07)
+
+## Features
+
+- **dashboard:** Add virtual client create/destroy UI ([83d1f95](https://github.com/NedcloarBR/NestWhats/commit/83d1f95b307a454f5c59136ed30af4feaecf8ed7))
+- **dashboard:** Add per-handler webhook bind/unbind controls with live SSE updates ([ae114ce](https://github.com/NedcloarBR/NestWhats/commit/ae114cea9e4cf47433b00a8283e0f762c69dce76))
+
 # [dashboard-v1.2.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v1.1.0...dashboard-v1.2.0) - (2026-05-27)
 
 ## Features
