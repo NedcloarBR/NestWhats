@@ -371,6 +371,63 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
     .chip-bound:hover:not(:disabled)   { background: rgba(34,199,139,.18); }
     .chip-unbound { background: rgba(77,90,122,.1);   color: var(--muted); border-color: var(--border2); }
     .chip-unbound:hover:not(:disabled) { background: var(--surface3); color: var(--text2); }
+    .chip-virtual {
+      font-size: .6rem; font-weight: 600;
+      padding: .15rem .5rem; border-radius: 100px;
+      background: rgba(160,100,240,.1); color: #b07ef8;
+      border: 1px solid rgba(160,100,240,.3);
+      text-transform: uppercase; letter-spacing: .07em;
+      flex-shrink: 0;
+    }
+
+    .action-btn-remove { border-color: rgba(240,96,96,.25); color: var(--red); }
+    .action-btn-remove:hover:not(:disabled) { background: var(--red-glow); border-color: var(--red); }
+
+    /* ── Add client card ── */
+    .add-client-card {
+      background: var(--surface);
+      border: 1px dashed var(--border2);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex; flex-direction: column; gap: .75rem;
+      transition: border-color .2s;
+    }
+    .add-client-card:hover { border-color: #b07ef8; }
+
+    .add-client-trigger {
+      background: transparent; border: none;
+      color: var(--muted); font-family: inherit;
+      font-size: .8rem; font-weight: 500;
+      cursor: pointer; padding: 0; text-align: left;
+      transition: color .15s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .add-client-trigger:hover { color: #b07ef8; }
+
+    .add-client-form { display: flex; flex-direction: column; gap: .6rem; }
+    .add-form-input {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 7px; color: var(--text);
+      font-family: 'IBM Plex Mono', monospace; font-size: .8rem;
+      padding: .45rem .75rem; outline: none;
+      transition: border-color .15s; width: 100%;
+    }
+    .add-form-input:focus { border-color: #b07ef8; }
+    .add-form-input::placeholder { color: var(--muted); }
+    .add-form-btns { display: flex; gap: .5rem; }
+    .add-form-btn {
+      flex: 1; font-size: .67rem; font-weight: 600;
+      padding: .35rem .5rem; border-radius: 6px; border: 1px solid;
+      cursor: pointer; font-family: inherit;
+      letter-spacing: .04em; text-transform: uppercase;
+      transition: background .15s, border-color .15s, color .15s;
+      background: transparent;
+    }
+    .add-form-btn-cancel { border-color: var(--border2); color: var(--text2); }
+    .add-form-btn-cancel:hover { background: var(--surface3); }
+    .add-form-btn-create { border-color: rgba(160,100,240,.35); color: #b07ef8; }
+    .add-form-btn-create:hover { background: rgba(160,100,240,.1); border-color: #b07ef8; }
+    .add-form-btn-create:disabled { opacity: .4; cursor: not-allowed; }
 
     /* ── Toast ── */
     .toast-wrap {
@@ -632,9 +689,20 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
       return \`<div class="card-webhook"><span class="webhook-label">Webhook</span><div class="webhook-chips">\${chips}</div></div>\`;
     }
 
-    function buildActionsHTML(status, name) {
-      if (status === 'initializing') return '';
+    function buildActionsHTML(status, name, isVirtual) {
       const n = name.replace(/"/g, '&quot;');
+      if (isVirtual) {
+        const remove = \`<button class="action-btn action-btn-remove" data-action="destroy-virtual-client" data-client="\${n}">✕ Remove</button>\`;
+        if (status === 'initializing') return \`<div class="card-actions">\${remove}</div>\`;
+        const restart = \`<button class="action-btn action-btn-restart" data-action="restart" data-client="\${n}">↺ Restart</button>\`;
+        const forceQr = \`<button class="action-btn action-btn-qr" data-action="force-qr" data-client="\${n}">⟳ Force QR</button>\`;
+        const logout  = \`<button class="action-btn action-btn-logout" data-action="logout" data-client="\${n}">⏏ Logout</button>\`;
+        const btns = (status === 'ready' || status === 'authenticated')
+          ? restart + forceQr + logout + remove
+          : restart + remove;
+        return \`<div class="card-actions">\${btns}</div>\`;
+      }
+      if (status === 'initializing') return '';
       const restart = \`<button class="action-btn action-btn-restart" data-action="restart"   data-client="\${n}">↺ Restart</button>\`;
       const forceQr = \`<button class="action-btn action-btn-qr"      data-action="force-qr" data-client="\${n}">⟳ Force QR</button>\`;
       const logout  = \`<button class="action-btn action-btn-logout"   data-action="logout"   data-client="\${n}">⏏ Logout</button>\`;
@@ -646,10 +714,82 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
 
     const ACTION_LABELS = { restart: 'Restarting', 'force-qr': 'Forcing new QR', logout: 'Logging out' };
 
+    let addClientCardEl = null;
+
+    function buildAddClientCard() {
+      const div = document.createElement('div');
+      div.className = 'add-client-card';
+      div.id = 'add-client-card';
+      div.innerHTML = \`
+        <button class="add-client-trigger" id="add-client-trigger">＋ Add virtual client</button>
+        <div class="add-client-form" id="add-client-form" style="display:none">
+          <input class="add-form-input" id="vc-name"   type="text" placeholder="Name (e.g. BOT2)" />
+          <input class="add-form-input" id="vc-prefix" type="text" placeholder="Prefix (default: !)" />
+          <div class="add-form-btns">
+            <button class="add-form-btn add-form-btn-cancel" id="add-form-cancel">Cancel</button>
+            <button class="add-form-btn add-form-btn-create" id="add-form-create">Create</button>
+          </div>
+        </div>
+      \`;
+      div.querySelector('#add-client-trigger').addEventListener('click', () => {
+        div.querySelector('#add-client-form').style.display = 'flex';
+        div.querySelector('#add-client-trigger').style.display = 'none';
+        div.querySelector('#vc-name').focus();
+      });
+      div.querySelector('#add-form-cancel').addEventListener('click', () => {
+        div.querySelector('#add-client-form').style.display = 'none';
+        div.querySelector('#add-client-trigger').style.display = '';
+        div.querySelector('#vc-name').value = '';
+        div.querySelector('#vc-prefix').value = '';
+      });
+      div.querySelector('#add-form-create').addEventListener('click', async () => {
+        const name   = div.querySelector('#vc-name').value.trim();
+        const prefix = div.querySelector('#vc-prefix').value.trim() || undefined;
+        if (!name) { div.querySelector('#vc-name').focus(); return; }
+        const btn = div.querySelector('#add-form-create');
+        btn.disabled = true;
+        try {
+          const res = await fetch('./api/virtual-clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Action-Token': ACTION_TOKEN },
+            body: JSON.stringify({ action: 'create-virtual-client', name, prefix }),
+          });
+          if (res.ok) {
+            showToast(\`Virtual client "\${name}" created\`, 'ok');
+            div.querySelector('#add-form-cancel').click();
+          } else {
+            showToast('Failed to create client', 'err');
+          }
+        } catch {
+          showToast('Could not reach server', 'err');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+      return div;
+    }
+
     async function doAction(name, action, extra) {
       if (action === 'restart'  && !await showConfirm(\`Restart "\${name}"?\`, 'default')) return;
       if (action === 'logout'   && !await showConfirm(\`Logout "\${name}"?\\nThis will require scanning a new QR code.\`)) return;
       if (action === 'force-qr' && !await showConfirm(\`Force new QR for "\${name}"?\\nCurrent session will be logged out.\`)) return;
+      if (action === 'destroy-virtual-client' && !await showConfirm(\`Remove virtual client "\${name}"?\\nThis will disconnect and delete it.\`)) return;
+
+      if (action === 'destroy-virtual-client') {
+        const card = cardMap.get(name);
+        card?.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+        try {
+          const res = await fetch(\`./api/virtual-clients/\${encodeURIComponent(name)}\`, {
+            method: 'DELETE',
+            headers: { 'X-Action-Token': ACTION_TOKEN },
+          });
+          if (res.ok) showToast(\`Removed "\${name}"\`, 'ok');
+          else showToast('Failed to remove client', 'err');
+        } catch {
+          showToast('Could not reach server', 'err');
+        }
+        return;
+      }
 
       const card = cardMap.get(name);
       if (action === 'webhook-toggle') {
@@ -727,12 +867,14 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
       const phoneHTML = c.phone
         ? \`<span class="meta-label">number</span><span class="prefix-tag phone-tag">\${c.phone}</span>\`
         : '';
+      const virtualBadge = c.virtual ? \`<span class="chip-virtual">virtual</span>\` : '';
       const boundKey = (c.webhookBoundHandlers ?? []).join(',');
       return \`
-        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}" data-status-at="\${c.statusAt}" data-webhook-bound-handlers="\${boundKey}">
+        <div class="card card-entering card-\${c.status}" data-client="\${c.name}" data-status="\${c.status}" data-status-at="\${c.statusAt}" data-webhook-bound-handlers="\${boundKey}" data-virtual="\${!!c.virtual}">
           <div class="card-head">
-            <div>
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
               <span class="client-name">\${c.name}</span>
+              \${virtualBadge}
               \${pushnameHTML}
             </div>
             <span class="badge badge-\${c.status}">
@@ -748,15 +890,16 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
           \${buildWebhookHTML(c.name, c.webhookAvailableHandlers, c.webhookBoundHandlers)}
           <div class="card-duration">In this state for <strong>\${since(c.statusAt)}</strong></div>
           \${c.qr ? buildQrHTML(c.qr) : ''}
-          \${buildActionsHTML(c.status, c.name)}
+          \${buildActionsHTML(c.status, c.name, c.virtual)}
         </div>
       \`;
     }
 
     function patchCard(el, c) {
-      const statusChanged = el.dataset.status !== c.status;
-      const newBoundKey   = (c.webhookBoundHandlers ?? []).join(',');
-      const boundChanged  = HAS_WEBHOOK && el.dataset.webhookBoundHandlers !== newBoundKey;
+      const statusChanged  = el.dataset.status !== c.status;
+      const newBoundKey    = (c.webhookBoundHandlers ?? []).join(',');
+      const boundChanged   = HAS_WEBHOOK && el.dataset.webhookBoundHandlers !== newBoundKey;
+      const virtualChanged = el.dataset.virtual !== String(!!c.virtual);
 
       if (statusChanged) {
         el.className = 'card card-' + c.status;
@@ -767,10 +910,20 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
         el.querySelector('.badge-label').textContent = LABEL[c.status] || c.status;
       }
 
-      if (statusChanged) {
+      if (virtualChanged) {
+        el.dataset.virtual = String(!!c.virtual);
+        const existing = el.querySelector('.chip-virtual');
+        if (c.virtual && !existing) {
+          el.querySelector('.client-name').insertAdjacentHTML('afterend', '<span class="chip-virtual">virtual</span>');
+        } else if (!c.virtual && existing) {
+          existing.remove();
+        }
+      }
+
+      if (statusChanged || virtualChanged) {
         const existing = el.querySelector('.card-actions');
         if (existing) existing.remove();
-        const newActions = buildActionsHTML(c.status, c.name);
+        const newActions = buildActionsHTML(c.status, c.name, c.virtual);
         if (newActions) el.insertAdjacentHTML('beforeend', newActions);
       }
 
@@ -832,7 +985,7 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
     function render(clients) {
       updateStats(clients);
 
-      if (!clients.length) {
+      if (!clients.length && !HAS_WEBHOOK) {
         setEmpty('No clients registered yet.');
         footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();
         return;
@@ -855,10 +1008,15 @@ export function getDashboardHtml(token: string, hasWebhook: boolean): string {
           const tmp = document.createElement('div');
           tmp.innerHTML = buildCardHTML(c);
           const card = tmp.firstElementChild;
-          grid.appendChild(card);
+          addClientCardEl ? grid.insertBefore(card, addClientCardEl) : grid.appendChild(card);
           cardMap.set(c.name, card);
           setTimeout(() => card.classList.remove('card-entering'), 400);
         }
+      }
+
+      if (HAS_WEBHOOK && !addClientCardEl) {
+        addClientCardEl = buildAddClientCard();
+        grid.appendChild(addClientCardEl);
       }
 
       footerTs.textContent = 'Last updated ' + new Date().toLocaleTimeString();

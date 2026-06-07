@@ -10,6 +10,8 @@ export interface WebhookServicePort {
 	register(options?: { client?: string; handlers?: string[] }): void;
 	unregister(options?: { client?: string; handlers?: string[] }): void;
 	subscribe(listener: () => void): () => void;
+	addVirtualClient(config: { name: string; prefix?: string }): Promise<void>;
+	removeVirtualClient(name: string): Promise<void>;
 }
 
 export interface NestWhatsDashboardOptions {

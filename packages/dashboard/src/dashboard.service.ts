@@ -148,6 +148,44 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 				return;
 			}
 
+			const virtualCreateMatch =
+				req.method === "POST" &&
+				(url === `/${path}/api/virtual-clients` ||
+					url === "/api/virtual-clients");
+
+			if (virtualCreateMatch) {
+				if (req.headers["x-action-token"] !== this.actionToken) {
+					res.writeHead(403, { "Content-Type": "text/plain" });
+					res.end("Forbidden");
+					return;
+				}
+				const chunks: Buffer[] = [];
+				req.on("data", (chunk: Buffer) => chunks.push(chunk));
+				req.on("end", () => {
+					void this.handleVirtualClientCreate(
+						Buffer.concat(chunks).toString(),
+						res,
+					);
+				});
+				return;
+			}
+
+			const virtualDeleteMatch =
+				req.method === "DELETE"
+					? url.match(new RegExp(`^(?:/${path})?/api/virtual-clients/([^/]+)$`))
+					: null;
+
+			if (virtualDeleteMatch) {
+				if (req.headers["x-action-token"] !== this.actionToken) {
+					res.writeHead(403, { "Content-Type": "text/plain" });
+					res.end("Forbidden");
+					return;
+				}
+				const name = decodeURIComponent(virtualDeleteMatch[1]);
+				void this.handleVirtualClientDestroy(name, res);
+				return;
+			}
+
 			res.writeHead(404, { "Content-Type": "text/plain" });
 			res.end("Not found");
 		});
@@ -159,19 +197,71 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		});
 	}
 
+	private async handleVirtualClientCreate(
+		rawBody: string,
+		res: ServerResponse,
+	): Promise<void> {
+		if (!this.webhookService) {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Messaging module not configured");
+			return;
+		}
+		let body: { name: string; prefix?: string };
+		try {
+			body = JSON.parse(rawBody) as typeof body;
+		} catch {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Invalid body");
+			return;
+		}
+		try {
+			await this.webhookService.addVirtualClient({
+				name: body.name,
+				prefix: body.prefix,
+			});
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ ok: true }));
+		} catch (err: unknown) {
+			this.logger.error(
+				`Create virtual client "${body.name}" failed: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			res.writeHead(500, { "Content-Type": "text/plain" });
+			res.end("Action failed");
+		}
+	}
+
+	private async handleVirtualClientDestroy(
+		name: string,
+		res: ServerResponse,
+	): Promise<void> {
+		if (!this.webhookService) {
+			res.writeHead(400, { "Content-Type": "text/plain" });
+			res.end("Messaging module not configured");
+			return;
+		}
+		try {
+			await this.webhookService.removeVirtualClient(name);
+			res.writeHead(200, { "Content-Type": "application/json" });
+			res.end(JSON.stringify({ ok: true }));
+		} catch (err: unknown) {
+			this.logger.error(
+				`Destroy virtual client "${name}" failed: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			res.writeHead(500, { "Content-Type": "text/plain" });
+			res.end("Action failed");
+		}
+	}
+
 	private async handleAction(
 		name: string,
 		rawBody: string,
 		res: ServerResponse,
 	): Promise<void> {
-		const entry = this.clientsRegistry.getEntry(name);
-		if (!entry) {
-			res.writeHead(404, { "Content-Type": "text/plain" });
-			res.end("Client not found");
-			return;
-		}
-
-		let body: { action: string; handler?: string; bound?: boolean };
+		let body: {
+			action: string;
+			handler?: string;
+			bound?: boolean;
+		};
 		try {
 			body = JSON.parse(rawBody) as typeof body;
 		} catch {
@@ -182,6 +272,13 @@ export class DashboardService implements OnModuleInit, OnApplicationShutdown {
 		const { action } = body;
 
 		try {
+			const entry = this.clientsRegistry.getEntry(name);
+			if (!entry) {
+				res.writeHead(404, { "Content-Type": "text/plain" });
+				res.end("Client not found");
+				return;
+			}
+
 			if (action === "logout") {
 				await entry.client.logout();
 			} else if (action === "restart") {
