@@ -34,6 +34,10 @@ export class SubcommandDiscovery extends NestWhatsBaseDiscovery<SubcommandIntern
 		return Array.isArray(client) ? client : [client];
 	}
 
+	public override isSubcommand(): this is SubcommandDiscovery {
+		return true;
+	}
+
 	public override toJSON(): Record<string, any> {
 		return this.meta;
 	}

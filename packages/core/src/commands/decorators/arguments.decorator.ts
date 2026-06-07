@@ -8,9 +8,11 @@ export const Arguments = createParamDecorator(
 		const [message] = moduleContext.getContext<CommandContext>();
 		const discovery = moduleContext.getDiscovery();
 
-		if (!discovery.isCommand()) return null;
+		if (!discovery.isCommand() && !discovery.isSubcommand()) return null;
 
-		const args = message.body.split(/ +/g).slice(1);
+		const args = message.body
+			.split(/ +/g)
+			.slice(discovery.isSubcommand() ? 2 : 1);
 		return index !== undefined ? (args[index] ?? null) : args;
 	},
 );

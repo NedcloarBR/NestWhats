@@ -1,5 +1,6 @@
 import { Reflector } from "@nestjs/core";
 import { CommandDiscovery } from "../commands/command.discovery";
+import { SubcommandDiscovery } from "../commands/subcommand.discovery";
 import { ListenerDiscovery } from "../listeners";
 
 interface DiscoveredItem {
@@ -41,6 +42,10 @@ export abstract class NestWhatsBaseDiscovery<T = any> {
 	}
 
 	public isCommand(): this is CommandDiscovery {
+		return false;
+	}
+
+	public isSubcommand(): this is SubcommandDiscovery {
 		return false;
 	}
 
