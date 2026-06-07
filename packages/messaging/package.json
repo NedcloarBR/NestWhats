@@ -1,7 +1,7 @@
 {
 	"name": "@nestwhats/messaging",
 	"description": "Messaging layer for nestwhats — send messages programmatically and bind WhatsApp events for outbound dispatch",
-	"version": "0.0.0",
+	"version": "1.0.1",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
 		"email": "nedcloar1@hotmail.com"
@@ -20,11 +20,7 @@
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist",
-		"README.md",
-		"License"
-	],
+	"files": ["dist", "README.md", "License"],
 	"scripts": {
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"changelog": "git cliff --prepend ./CHANGELOG.md --latest -c ../../cliff.toml -r ../..",

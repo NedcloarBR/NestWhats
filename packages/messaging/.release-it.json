@@ -1,0 +1,21 @@
+{
+	"git": {
+		"commitMessage": "chore(messaging): release messaging-v${version}",
+		"requireBranch": "master",
+		"requireCommits": true,
+		"tagName": "messaging-v${version}"
+	},
+	"github": {
+		"release": true,
+		"releaseName": "@nestwhats/messaging v${version}",
+		"releaseNotes": "git cliff --tag messaging-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/messaging/**'",
+		"assets": ["nestwhats-messaging-*.tgz"]
+	},
+	"npm": {
+		"publish": true
+	},
+	"hooks": {
+		"before:bump": "yarn run -T nx build messaging",
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag messaging-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/messaging/**' && git add CHANGELOG.md && rm -f nestwhats-messaging-*.tgz && npm pack"
+	}
+}
