@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [3.1.0](https://github.com/NedcloarBR/NestWhats/compare/messaging-v1.0.2...v3.1.0) - (2026-06-07)
+
+## Features
+
+- **core:** Add @CommandGroup and @Subcommand support ([7a4e460](https://github.com/NedcloarBR/NestWhats/commit/7a4e460407718bce5111d7a56a7d2aaa8b66ee63))
+
 # [3.0.0](https://github.com/NedcloarBR/NestWhats/compare/locale-v1.0.0...v3.0.0) - (2026-06-07)
 
 # [2.4.0](https://github.com/NedcloarBR/NestWhats/compare/v2.3.1...v2.4.0) - (2026-05-27)
