@@ -1,4 +1,19 @@
 {
-	"extends": "./tsconfig.build.json",
-	"include": ["src/**/*", "**/*.spec.ts"]
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"esModuleInterop": true,
+		"declaration": true,
+		"noImplicitAny": false,
+		"noUnusedLocals": true,
+		"removeComments": false,
+		"noLib": false,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"target": "es2022",
+		"sourceMap": false,
+		"skipLibCheck": true,
+		"types": ["node"]
+	}
 }
