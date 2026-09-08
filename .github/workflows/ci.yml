@@ -10,16 +10,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 20.19 is the floor the packages declare: the first release where a
+        # CommonJS consumer can require() an ES module unflagged. 22 is current.
+        node: ["20.19", "22"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Node v20
+      - name: Install Node v${{ matrix.node }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: yarn
           cache-dependency-path: yarn.lock
 
@@ -30,12 +36,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/tsconfig.base.json') }}-${{ github.sha }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-nx-${{ hashFiles('tsconfig.json') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-nx-${{ hashFiles('**/tsconfig.base.json') }}-
+            ${{ runner.os }}-node${{ matrix.node }}-nx-${{ hashFiles('tsconfig.json') }}-
 
       - name: Run BiomeJS
         run: yarn lint
 
+      # Ahead of the build, so a type error is reported as one rather than as a
+      # failed emit — and so the packages that only `noEmit` are covered too.
+      - name: Typecheck all packages
+        run: yarn typecheck
+
       - name: Build all packages
         run: yarn build
+
+      - name: Run tests
+        run: yarn test
