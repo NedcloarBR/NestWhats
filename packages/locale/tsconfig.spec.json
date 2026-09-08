@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"types": ["node"],
+		"paths": {
+			"nestwhats": ["../core/src/index.ts"]
+		}
+	},
+	"include": ["src/**/*", "test/**/*"]
+}
