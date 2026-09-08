@@ -1,0 +1,70 @@
+{
+	"name": "@nestwhats/platform-baileys",
+	"description": "Baileys adapter for NestWhats",
+	"version": "0.0.0",
+	"type": "module",
+	"author": {
+		"name": "Miguel Alexandre Uhlein",
+		"email": "nedcloar1@hotmail.com"
+	},
+	"license": "GPL-3.0",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/NedcloarBR/NestWhats.git",
+		"directory": "packages/platform-baileys"
+	},
+	"bugs": {
+		"url": "https://github.com/NedcloarBR/NestWhats/issues"
+	},
+	"engines": {
+		"node": ">=20.19.0"
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist",
+		"README.md",
+		"License"
+	],
+	"scripts": {
+		"build": "rimraf dist && tsc -p tsconfig.build.json",
+		"changelog": "git cliff --prepend ./CHANGELOG.md --latest -c ../../cliff.toml -r ../.. --include-path 'packages/platform-baileys/**' --tag-pattern '^platform-baileys-v'",
+		"release-it": "release-it",
+		"format": "biome format --write ./src",
+		"lint": "biome lint ./src",
+		"check": "biome check --write ./src"
+	},
+	"dependencies": {
+		"qrcode": "^1.5.4"
+	},
+	"devDependencies": {
+		"@nestjs/common": "12.0.1",
+		"@nestjs/core": "12.0.1",
+		"@types/node": "22.19.19",
+		"@types/qrcode": "^1.5.6",
+		"@whiskeysockets/baileys": "7.0.0-rc14",
+		"nestwhats": "workspace:*",
+		"reflect-metadata": "0.2.2",
+		"release-it": "19.2.4",
+		"rimraf": "6.1.3",
+		"rxjs": "7.8.2"
+	},
+	"peerDependencies": {
+		"@nestjs/common": "^10.2.0 || ^11.0.0 || ^12.0.0",
+		"@nestjs/core": "^10.2.0 || ^11.0.0 || ^12.0.0",
+		"@whiskeysockets/baileys": "^7.0.0-rc14",
+		"nestwhats": "^4.0.0",
+		"reflect-metadata": "^0.2.1",
+		"rxjs": "^7.2.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	}
+}

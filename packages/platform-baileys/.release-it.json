@@ -1,0 +1,21 @@
+{
+	"git": {
+		"commitMessage": "chore(platform-baileys): release platform-baileys-v${version}",
+		"requireBranch": "master",
+		"requireCommits": true,
+		"tagName": "platform-baileys-v${version}"
+	},
+	"github": {
+		"release": true,
+		"releaseName": "@nestwhats/platform-baileys v${version}",
+		"releaseNotes": "git cliff --tag platform-baileys-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/platform-baileys/**' --tag-pattern '^platform-baileys-v'",
+		"assets": ["nestwhats-platform-baileys-*.tgz"]
+	},
+	"npm": {
+		"publish": true
+	},
+	"hooks": {
+		"before:bump": "yarn run -T nx build platform-baileys",
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag platform-baileys-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/platform-baileys/**' --tag-pattern '^platform-baileys-v' && git add CHANGELOG.md && rm -f nestwhats-platform-baileys-*.tgz && npm pack"
+	}
+}
