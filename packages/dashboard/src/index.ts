@@ -1,2 +1,2 @@
-export * from "./dashboard-options.interface";
-export * from "./dashboard.module";
+export * from "./dashboard.module.js";
+export * from "./dashboard-options.interface.js";

@@ -1,8 +1,16 @@
 import { DynamicModule, Module } from "@nestjs/common";
-import type { NestWhatsDashboardOptions } from "./dashboard-options.interface";
-import { DASHBOARD_OPTIONS } from "./dashboard.constants";
-import { DashboardService } from "./dashboard.service";
+import { DASHBOARD_OPTIONS } from "./dashboard.constants.js";
+import { DashboardService } from "./dashboard.service.js";
+import type { NestWhatsDashboardOptions } from "./dashboard-options.interface.js";
 
+/**
+ * Serves the live dashboard: client status, QR codes and pairing codes, and
+ * creating, editing and destroying virtual clients.
+ *
+ * ```typescript
+ * NestWhatsDashboardModule.forRoot({ port: 4000, path: 'nestwhats' })
+ * ```
+ */
 @Module({})
 // biome-ignore lint/complexity/noStaticOnlyClass: forRoot pattern matches NestWhatsModule convention
 export class NestWhatsDashboardModule {

@@ -8,7 +8,7 @@
 	"github": {
 		"release": true,
 		"releaseName": "@nestwhats/dashboard v${version}",
-		"releaseNotes": "git cliff --tag dashboard-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**'",
+		"releaseNotes": "git cliff --tag dashboard-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' --tag-pattern '^dashboard-v'",
 		"assets": ["nestwhats-dashboard-*.tgz"]
 	},
 	"npm": {
@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build dashboard",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff dashboard-v${latestVersion}..HEAD --prepend ./CHANGELOG.md --tag dashboard-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' && git add CHANGELOG.md && rm -f nestwhats-dashboard-*.tgz && npm pack"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag dashboard-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' --tag-pattern '^dashboard-v' && git add CHANGELOG.md && rm -f nestwhats-dashboard-*.tgz && npm pack"
 	}
 }
