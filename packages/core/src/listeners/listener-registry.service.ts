@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { ListenerDiscovery } from "./listener.discovery";
+import { ListenerDiscovery } from "./listener.discovery.js";
 
+/** Every `@On`/`@Once` handler found in the application. */
 @Injectable()
 export class ListenerRegistryService {
 	private listeners: ListenerDiscovery[] = [];

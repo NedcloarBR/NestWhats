@@ -1,16 +1,11 @@
-export * from "./commands";
-export * from "./context";
-export * from "./filters";
-export * from "./guards";
-export * from "./listeners";
-export * from "./providers";
-
-export * from "./clients-registry.service";
-
-export * from "./nestwhats-client.service";
-export * from "./nestwhats-client-manager.service";
-export * from "./nestwhats-health.indicator";
-export * from "./nestwhats-explorer.service";
-export * from "./nestwhats-options.interface";
-export * from "./nestwhats-shared.module";
-export * from "./nestwhats.module";
+export * from "./adapter/index.js";
+export * from "./client/index.js";
+export * from "./commands/index.js";
+export * from "./context/index.js";
+export * from "./filters/index.js";
+export * from "./guards/index.js";
+export * from "./listeners/index.js";
+export * from "./module/index.js";
+export * from "./services/index.js";
+export * from "./storage/index.js";
+export * from "./structures/index.js";

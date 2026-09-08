@@ -1,3 +1,3 @@
-export * from "./listener.decorator";
-export * from "./on.decorator";
-export * from "./once.decorator";
+export * from "./listener.decorator.js";
+export * from "./on.decorator.js";
+export * from "./once.decorator.js";

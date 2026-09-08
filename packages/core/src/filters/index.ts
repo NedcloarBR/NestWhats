@@ -1,1 +1,1 @@
-export * from "./nestwhats-exception-filter.interface";
+export * from "./exception-filter.interface.js";

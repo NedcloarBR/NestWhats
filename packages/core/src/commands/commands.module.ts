@@ -1,12 +1,13 @@
 import { Global, Module, OnModuleInit } from "@nestjs/common";
-import { ExplorerService } from "../nestwhats-explorer.service";
-import { CommandDiscovery } from "./command.discovery";
-import { CommandsRegistryService } from "./commands-registry.service";
-import { CommandsService } from "./commands.service";
-import { Command } from "./decorators/command.decorator";
-import { GroupDefault } from "./decorators/group-default.decorator";
-import { Subcommand } from "./decorators/subcommand.decorator";
+import { ExplorerService } from "../services/explorer.service.js";
+import { CommandDiscovery } from "./command.discovery.js";
+import { CommandsService } from "./commands.service.js";
+import { CommandsRegistryService } from "./commands-registry.service.js";
+import { Command } from "./decorators/command.decorator.js";
+import { GroupDefault } from "./decorators/group-default.decorator.js";
+import { Subcommand } from "./decorators/subcommand.decorator.js";
 
+/** Wires command discovery and dispatch. Imported by `NestWhatsModule`. */
 @Global()
 @Module({
 	providers: [CommandsRegistryService, CommandsService],
@@ -19,15 +20,19 @@ export class CommandsModule implements OnModuleInit {
 	) {}
 
 	public onModuleInit() {
-		this.explorerService
-			.explore(Command.KEY)
-			.forEach((command) => this.registry.add(command));
+		for (const command of this.explorerService.explore(Command.KEY)) {
+			this.registry.add(command);
+		}
 
 		const { commands, subcommands } = this.explorerService.exploreCommandGroups(
 			Subcommand.KEY,
 			GroupDefault.KEY,
 		);
-		commands.forEach((cmd) => this.registry.add(cmd));
-		subcommands.forEach((sub) => this.registry.addSubcommand(sub));
+		for (const command of commands) {
+			this.registry.add(command);
+		}
+		for (const subcommand of subcommands) {
+			this.registry.addSubcommand(subcommand);
+		}
 	}
 }

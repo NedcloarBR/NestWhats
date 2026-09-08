@@ -1,1 +1,1 @@
-export * from "./command-args.exception";
+export * from "./command-args.exception.js";

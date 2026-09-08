@@ -1,7 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { CommandDiscovery } from "./command.discovery";
-import { SubcommandDiscovery } from "./subcommand.discovery";
+import { CommandDiscovery } from "./command.discovery.js";
+import { SubcommandDiscovery } from "./subcommand.discovery.js";
 
+/** Every command and subcommand found in the application. */
 @Injectable()
 export class CommandsRegistryService {
 	private readonly logger = new Logger(CommandsRegistryService.name);
@@ -26,7 +27,7 @@ export class CommandsRegistryService {
 	}
 
 	private addToCache(command: CommandDiscovery) {
-		const name = command.getName();
+		const name = command.getName().toLowerCase();
 
 		if (this.cache.has(name)) {
 			this.logger.warn(`Command : ${name} already exists`);
@@ -34,7 +35,8 @@ export class CommandsRegistryService {
 
 		this.cache.set(name, command);
 
-		for (const alias of command.getAliases()) {
+		for (const rawAlias of command.getAliases()) {
+			const alias = rawAlias.toLowerCase();
 			if (this.cache.has(alias)) {
 				this.logger.warn(`Command alias: ${alias} already exists`);
 			}
@@ -48,7 +50,7 @@ export class CommandsRegistryService {
 		}
 
 		const map = this.prefixCache.get(prefix) as Map<string, CommandDiscovery>;
-		const name = command.getName();
+		const name = command.getName().toLowerCase();
 
 		if (map.has(name)) {
 			this.logger.warn(
@@ -58,7 +60,8 @@ export class CommandsRegistryService {
 
 		map.set(name, command);
 
-		for (const alias of command.getAliases()) {
+		for (const rawAlias of command.getAliases()) {
+			const alias = rawAlias.toLowerCase();
 			if (map.has(alias)) {
 				this.logger.warn(
 					`Command alias: ${alias} with prefix "${prefix}" already exists`,
@@ -69,7 +72,7 @@ export class CommandsRegistryService {
 	}
 
 	public addSubcommand(sub: SubcommandDiscovery) {
-		const parent = sub.getParent();
+		const parent = sub.getParent().toLowerCase();
 		if (!this.subcommandCache.has(parent)) {
 			this.subcommandCache.set(parent, new Map());
 		}
@@ -77,14 +80,15 @@ export class CommandsRegistryService {
 			string,
 			SubcommandDiscovery
 		>;
-		const name = sub.getName();
+		const name = sub.getName().toLowerCase();
 
 		if (map.has(name)) {
 			this.logger.warn(`Subcommand "${name}" of "${parent}" already exists`);
 		}
 		map.set(name, sub);
 
-		for (const alias of sub.getAliases()) {
+		for (const rawAlias of sub.getAliases()) {
+			const alias = rawAlias.toLowerCase();
 			if (map.has(alias)) {
 				this.logger.warn(
 					`Subcommand alias "${alias}" of "${parent}" already exists`,
@@ -95,7 +99,9 @@ export class CommandsRegistryService {
 	}
 
 	public getSub(parent: string, name: string): SubcommandDiscovery | undefined {
-		return this.subcommandCache.get(parent)?.get(name);
+		return this.subcommandCache
+			.get(parent.toLowerCase())
+			?.get(name.toLowerCase());
 	}
 
 	public getAll(): CommandDiscovery[] {
@@ -107,19 +113,20 @@ export class CommandsRegistryService {
 	}
 
 	public get(name: string) {
-		return this.cache.get(name);
+		return this.cache.get(name.toLowerCase());
 	}
 
 	public getByPrefix(prefix: string, name: string) {
-		return this.prefixCache.get(prefix)?.get(name);
+		return this.prefixCache.get(prefix)?.get(name.toLowerCase());
 	}
 
 	public remove(name: string) {
-		const command = this.cache.get(name);
+		const key = name.toLowerCase();
+		const command = this.cache.get(key);
 		if (!command) return;
-		this.cache.delete(name);
+		this.cache.delete(key);
 		for (const alias of command.getAliases()) {
-			this.cache.delete(alias);
+			this.cache.delete(alias.toLowerCase());
 		}
 	}
 
@@ -127,12 +134,13 @@ export class CommandsRegistryService {
 		const map = this.prefixCache.get(prefix);
 		if (!map) return;
 
-		const command = map.get(name);
+		const key = name.toLowerCase();
+		const command = map.get(key);
 		if (!command) return;
 
-		map.delete(name);
+		map.delete(key);
 		for (const alias of command.getAliases()) {
-			map.delete(alias);
+			map.delete(alias.toLowerCase());
 		}
 
 		if (map.size === 0) {

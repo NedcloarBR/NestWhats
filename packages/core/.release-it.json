@@ -8,7 +8,7 @@
 	"github": {
 		"release": true,
 		"releaseName": "nestwhats v${version}",
-		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/core/**'",
+		"releaseNotes": "git cliff --tag v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' --tag-pattern '^v[0-9]'",
 		"assets": ["nestwhats-*.tgz"]
 	},
 	"npm": {
@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build core",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff v${latestVersion}..HEAD --prepend ./CHANGELOG.md --tag v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' --tag-pattern '^v[0-9]' && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
 	}
 }

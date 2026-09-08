@@ -1,1 +1,1 @@
-export * from "./parse-args.pipe";
+export * from "./parse-args.pipe.js";

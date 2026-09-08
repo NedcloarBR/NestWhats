@@ -1,16 +1,23 @@
-import { NestWhatsBaseDiscovery } from "../context";
+import { NestWhatsBaseDiscovery } from "../context/index.js";
 
+/** What `@Subcommand()` takes; the parent comes from the enclosing group. */
 export interface SubcommandMeta {
+	/** The word after the group's name, as in `prefix` for `!config prefix`. */
 	name: string;
+	/** Shown by a help command. */
 	description: string;
+	/** Other words that reach the same handler. */
 	aliases?: string[];
+	/** Restricts it to one or more named clients. */
 	client?: string | string[];
 }
 
+/** {@link SubcommandMeta} once the parent group's name has been resolved. */
 export interface SubcommandInternalMeta extends SubcommandMeta {
 	parent: string;
 }
 
+/** A discovered `@Subcommand()` handler. */
 export class SubcommandDiscovery extends NestWhatsBaseDiscovery<SubcommandInternalMeta> {
 	public getParent() {
 		return this.meta.parent;
