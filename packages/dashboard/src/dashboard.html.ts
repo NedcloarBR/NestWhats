@@ -1310,7 +1310,7 @@ export function getDashboardHtml(
      * country code split off rather than guessed at.
      */
     function formatPhone(digits) {
-      const d = String(digits).replace(/D/g, '');
+      const d = String(digits).replace(/\\D/g, '');
       if (d.startsWith('55') && (d.length === 12 || d.length === 13)) {
         const ddd = d.slice(2, 4);
         const rest = d.slice(4);
@@ -1386,7 +1386,7 @@ export function getDashboardHtml(
     }
 
     const b64urlToBuf = (s) => Uint8Array.from(atob(String(s).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)).buffer;
-    const bufToB64url = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/+/g, '-').replace(///g, '_').replace(/=+$/, '');
+    const bufToB64url = (b) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');
 
     /** Older browsers: the WebAuthn JSON helpers by hand. */
     function parseRequestOptions(o) {
@@ -1605,17 +1605,17 @@ export function getDashboardHtml(
         el.insertAdjacentHTML('beforeend', wantsPasskey ? buildPasskeyHTML(c.name) : wantsQr ? buildQrHTML(c.qr) : buildPairingHTML(c.pairingCode));
       } else if (wantsPasskey) {
         if (!panel.querySelector('[data-action="passkey"]')) {
-          panel.outerHTML = buildPasskeyHTML(c.name).replace(/^[sS]*?<div class="qr-section"/, '<div class="qr-section"');
+          panel.outerHTML = buildPasskeyHTML(c.name).replace(/^[\\s\\S]*?<div class="qr-section"/, '<div class="qr-section"');
         }
       } else if (wantsQr) {
         const img = panel.querySelector('.qr-img');
         if (img) img.src = c.qr;
-        else { panel.outerHTML = buildQrHTML(c.qr).replace(/^[sS]*?<div class="qr-section"/, '<div class="qr-section"'); }
+        else { panel.outerHTML = buildQrHTML(c.qr).replace(/^[\\s\\S]*?<div class="qr-section"/, '<div class="qr-section"'); }
       } else {
         const codeEl = panel.querySelector('.pair-code');
         const grouped = String(c.pairingCode).replace(/(.{4})(?=.)/g, '$1-');
         if (codeEl) { if (codeEl.textContent !== grouped) codeEl.textContent = grouped; }
-        else { panel.outerHTML = buildPairingHTML(c.pairingCode).replace(/^[sS]*?<div class="qr-section"/, '<div class="qr-section"'); }
+        else { panel.outerHTML = buildPairingHTML(c.pairingCode).replace(/^[\\s\\S]*?<div class="qr-section"/, '<div class="qr-section"'); }
       }
     }
 
