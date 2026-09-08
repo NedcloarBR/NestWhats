@@ -4,37 +4,35 @@
   <br>
 </h1>
 
-<h3 align=center>Locale resolution for <b><a href="https://github.com/NedcloarBR/NestWhats">nestwhats</a></b> — detect language from WhatsApp messages and inject translations into command and listener handlers</h3>
+<h3 align="center">Locale resolution for <b><a href="https://www.npmjs.com/package/nestwhats">NestWhats</a></b> — detect language from WhatsApp messages and inject translations into command and listener handlers</h3>
 
 <p align="center">
-  <a href="#-about">About</a>
-  •
-  <a href="#-installation">Installation</a>
-  •
-  <a href="#-setup">Setup</a>
-  •
-  <a href="#-adapters">Adapters</a>
-  •
-  <a href="#-loaders">Loaders</a>
-  •
-  <a href="#-resolvers">Resolvers</a>
-  •
-  <a href="#-using-translations">Using Translations</a>
-  •
-  <a href="#-license">License</a>
+  <a href="https://github.com/NedcloarBR/NestWhats/blob/master/License">
+    <img src="https://img.shields.io/github/license/NedcloarBR/NestWhats" alt="License">
+  </a>
+  <a href="https://www.npmjs.com/package/@nestwhats/locale">
+    <img src="https://img.shields.io/npm/v/%40nestwhats%2Flocale" alt="npm version">
+  </a>
+  <a href="https://nedcloarbr.github.io/nestwhats/docs/packages/locale">
+    <img src="https://img.shields.io/badge/docs-nestwhats-c11e43" alt="Documentation">
+  </a>
+</p>
+
+<p align="center">
+  <b><a href="https://nedcloarbr.github.io/nestwhats/docs/packages/locale">Read the documentation</a></b>
 </p>
 
 ## ❓ About
 
-`@nestwhats/locale` adds i18n support to nestwhats bots. It resolves the locale from each incoming WhatsApp message, loads translations from any source, and injects a typed translation function directly into your command and listener handlers via a NestJS `APP_INTERCEPTOR` and `AsyncLocalStorage` — no prop-drilling required.
+`@nestwhats/locale` adds i18n support to NestWhats. It resolves the locale from each incoming WhatsApp message, loads translations from any source, and injects a typed translation function directly into your command and listener handlers via a NestJS `APP_INTERCEPTOR` and `AsyncLocalStorage` — no prop-drilling required.
 
 > [!IMPORTANT]
-> Requires `nestwhats ^2.4.0`
+> Requires `nestwhats ^4.0.0`
 
 ## ⬇️ Installation
 
 > [!NOTE]
-> NodeJS `v20+` is required
+> NodeJS `v20.19+` is required
 
 ```bash
 $ npm i @nestwhats/locale
@@ -188,7 +186,7 @@ Resolvers determine the locale for each message. They receive a `NestWhatsExecut
 
 ### `PhoneCountryResolver`
 
-Detects the locale from the sender's phone number DDI. Handles both standard `@c.us` numbers and WhatsApp LIDs (`@lid`) by calling `message.getContact()`. Supports 80+ countries across Americas, Europe, Africa, and Asia-Pacific.
+Detects the locale from the sender's phone number DDI. Reads the number straight off a `@user` id, and for a `@lid` (WhatsApp's privacy-preserving address) resolves the contact through `message.getContact()`. Group, broadcast and newsletter ids have no number behind them and fall back to the default locale. Supports 80+ countries across Americas, Europe, Africa, and Asia-Pacific.
 
 ```typescript
 resolvers: new PhoneCountryResolver()
@@ -212,7 +210,7 @@ import { NestWhatsExecutionContext } from "nestwhats";
 
 export class MyResolver implements LocaleResolver {
   async resolve(context: NestWhatsExecutionContext): Promise<string | undefined> {
-    const [message] = context.getContext<"message">();
+    const [, message] = context.getContext<"message">(); // [client, message]
     // return a locale string or undefined to fall through
     return "pt-BR";
   }

@@ -1,1 +1,1 @@
-export * from "./phone-country.resolver";
+export * from "./phone-country.resolver.js";

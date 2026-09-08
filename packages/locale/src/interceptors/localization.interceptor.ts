@@ -6,17 +6,19 @@ import {
 	type NestInterceptor,
 } from "@nestjs/common";
 import { ModuleRef } from "@nestjs/core";
-import { NestWhatsExecutionContext } from "nestwhats";
+import { NestWhatsExecutionContext, type NestWhatsMessage } from "nestwhats";
 import type { Observable } from "rxjs";
-import { BaseLocaleAdapter } from "../adapters/base-locale.adapter";
-import type { LocaleResolver, NestWhatsLocaleOptions } from "../interfaces";
-import {
-	LOCALE_ADAPTER,
-	LOCALE_OPTIONS,
-	LOCALE_RESOLVERS,
-} from "../locale.constants";
-import { LocaleStorage } from "../locale.context";
+import { BaseLocaleAdapter } from "../adapters/base-locale.adapter.js";
+import type { LocaleResolver } from "../interfaces/index.js";
+import { LOCALE_ADAPTER, LOCALE_RESOLVERS } from "../locale.constants.js";
+import { LocaleStorage } from "../locale.context.js";
+import { ddiOfMessage } from "../phone.util.js";
 
+/**
+ * Runs the configured resolvers for each incoming message and puts the
+ * resulting translation function in async storage, where `@CurrentTranslate()`
+ * picks it up. Registered globally by `NestWhatsLocaleModule.forRoot`.
+ */
 @Injectable()
 export class LocalizationInterceptor implements NestInterceptor {
 	public constructor(
@@ -24,7 +26,6 @@ export class LocalizationInterceptor implements NestInterceptor {
 		@Inject(LOCALE_ADAPTER) private readonly adapter: BaseLocaleAdapter,
 		@Inject(LOCALE_RESOLVERS)
 		private readonly resolvers: (LocaleResolver | Function)[],
-		@Inject(LOCALE_OPTIONS) private readonly options: NestWhatsLocaleOptions,
 	) {}
 
 	public async intercept(
@@ -35,10 +36,19 @@ export class LocalizationInterceptor implements NestInterceptor {
 
 		const nestwhatsContext = NestWhatsExecutionContext.create(context);
 
+		// Once per message, before the resolvers: a LID needs a contact lookup,
+		// and paying for it in each resolver that wants the number would be one
+		// round trip per resolver.
+		const args = nestwhatsContext.getContext<"message">();
+		const message = Array.isArray(args)
+			? (args[1] as NestWhatsMessage | undefined)
+			: undefined;
+		const ddi = await ddiOfMessage(message);
+
 		let locale: string | undefined;
 		for (const resolverOrClass of this.resolvers) {
 			const resolver = this.getResolver(resolverOrClass);
-			locale = await resolver.resolve(nestwhatsContext);
+			locale = await resolver.resolve(nestwhatsContext, { ddi });
 			if (locale !== undefined) break;
 		}
 
@@ -46,7 +56,10 @@ export class LocalizationInterceptor implements NestInterceptor {
 		const translate = (key: string, ...args: any[]) =>
 			this.adapter.getTranslation(key, resolvedLocale, ...args);
 
-		return LocaleStorage.run(translate, next.handle.bind(next));
+		return LocaleStorage.run(
+			{ translate, locale: resolvedLocale, ddi },
+			next.handle.bind(next),
+		);
 	}
 
 	private getResolver(resolver: LocaleResolver | Function): LocaleResolver {

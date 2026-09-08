@@ -1,50 +1,33 @@
-import type { NestWhatsExecutionContext } from "nestwhats";
-import type { Message } from "whatsapp-web.js";
-import { DDI_LOCALE } from "../constants/phone-ddi";
-import type { LocaleResolver } from "../interfaces/locale-resolver.interface";
+import type { NestWhatsExecutionContext, NestWhatsMessage } from "nestwhats";
+import { DDI_LOCALE } from "../constants/phone-ddi.js";
+import type {
+	LocaleResolver,
+	LocaleResolverHints,
+} from "../interfaces/locale-resolver.interface.js";
+import { ddiOfMessage } from "../phone.util.js";
 
-function extractDdi(phone: string): string | undefined {
-	for (const len of [3, 2, 1]) {
-		const prefix = phone.slice(0, len);
-		if (DDI_LOCALE[prefix]) return prefix;
-	}
-	return undefined;
-}
-
+/**
+ * Resolves the locale from the sender's country calling code.
+ *
+ * The interceptor resolves that code once per message and passes it in, so
+ * this normally costs nothing. The fallback path exists for a resolver used
+ * outside that interceptor.
+ */
 export class PhoneCountryResolver implements LocaleResolver {
 	public async resolve(
 		context: NestWhatsExecutionContext,
+		hints?: LocaleResolverHints,
 	): Promise<string | undefined> {
-		const args = context.getContext<"message">();
-		if (!args) return undefined;
-		const message = (Array.isArray(args) ? args[0] : args) as
-			| Message
-			| undefined;
-		if (!message) return undefined;
-
-		const phone = await this.extractPhone(message);
-		if (!phone) return undefined;
-
-		const ddi = extractDdi(phone);
+		const ddi = hints?.ddi ?? (await this.extractDdi(context));
 		return ddi ? DDI_LOCALE[ddi] : undefined;
 	}
 
-	private async extractPhone(message: Message): Promise<string | undefined> {
-		const sender = message.author ?? message.from;
-		if (!sender) return undefined;
-
-		if (sender.endsWith("@lid")) {
-			try {
-				const contact = await message.getContact();
-				if (contact.id.server === "c.us") return contact.id.user;
-				const serialized = contact.id._serialized;
-				if (serialized?.includes("@c.us")) return serialized.replace(/@.*/, "");
-				return undefined;
-			} catch {
-				return undefined;
-			}
-		}
-
-		return sender.replace(/@.*/, "");
+	private async extractDdi(
+		context: NestWhatsExecutionContext,
+	): Promise<string | undefined> {
+		const args = context.getContext<"message">();
+		if (!Array.isArray(args)) return undefined;
+		// Context shape: [NestWhatsClient, message, ...]
+		return ddiOfMessage(args[1] as NestWhatsMessage | undefined);
 	}
 }

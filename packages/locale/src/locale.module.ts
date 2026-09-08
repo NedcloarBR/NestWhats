@@ -6,21 +6,43 @@ import {
 	type Provider,
 } from "@nestjs/common";
 import { APP_INTERCEPTOR } from "@nestjs/core";
-import { BaseLocaleAdapter } from "./adapters/base-locale.adapter";
-import { LocalizationInterceptor } from "./interceptors/localization.interceptor";
-import { type NestWhatsLocaleOptions } from "./interfaces";
+import { BaseLocaleAdapter } from "./adapters/base-locale.adapter.js";
+import { LocalizationInterceptor } from "./interceptors/localization.interceptor.js";
+import { type NestWhatsLocaleOptions } from "./interfaces/index.js";
 import {
 	LOCALE_ADAPTER,
 	LOCALE_OPTIONS,
 	LOCALE_RESOLVERS,
-} from "./locale.constants";
+} from "./locale.constants.js";
 
+/**
+ * Translations for command replies and listener output.
+ *
+ * ```typescript
+ * NestWhatsLocaleModule.forRoot({
+ *   adapter: new NestedLocaleAdapter({ locales: new JSONLocaleLoader({ basePath }) }),
+ *   resolvers: [new PhoneCountryResolver()],
+ * })
+ * ```
+ */
 @Module({})
 export class NestWhatsLocaleModule implements OnModuleInit {
 	public static forRoot(options: NestWhatsLocaleOptions): DynamicModule {
-		const resolvers = Array.isArray(options.resolvers)
-			? options.resolvers
-			: [options.resolvers];
+		if (!options?.adapter) {
+			throw new Error(
+				"[NestWhats] NestWhatsLocaleModule.forRoot requires an 'adapter' (e.g. new NestedLocaleAdapter({ locales }))",
+			);
+		}
+
+		const resolvers = (
+			Array.isArray(options.resolvers) ? options.resolvers : [options.resolvers]
+		).filter((resolver) => resolver != null);
+
+		if (resolvers.length === 0) {
+			throw new Error(
+				"[NestWhats] NestWhatsLocaleModule.forRoot requires at least one resolver (e.g. new PhoneCountryResolver())",
+			);
+		}
 
 		const providers: Provider[] = [
 			{ provide: LOCALE_ADAPTER, useValue: options.adapter },

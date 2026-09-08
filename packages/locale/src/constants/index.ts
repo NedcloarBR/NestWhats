@@ -1,1 +1,1 @@
-export * from "./phone-ddi";
+export * from "./phone-ddi.js";

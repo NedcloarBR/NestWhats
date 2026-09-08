@@ -8,7 +8,7 @@
 	"github": {
 		"release": true,
 		"releaseName": "@nestwhats/locale v${version}",
-		"releaseNotes": "git cliff --tag locale-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**'",
+		"releaseNotes": "git cliff --tag locale-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**' --tag-pattern '^locale-v'",
 		"assets": ["nestwhats-locale-*.tgz"]
 	},
 	"npm": {
@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build locale",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --prepend ./CHANGELOG.md --tag locale-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**' && git add CHANGELOG.md && rm -f nestwhats-locale-*.tgz && npm pack"
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag locale-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**' --tag-pattern '^locale-v' && git add CHANGELOG.md && rm -f nestwhats-locale-*.tgz && npm pack"
 	}
 }

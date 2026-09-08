@@ -1,5 +1,13 @@
-import type { BaseLocaleLoader } from "../loaders/base-locale.loader";
+import type { BaseLocaleLoader } from "../loaders/base-locale.loader.js";
 
+/**
+ * Base for translation adapters: holds the loaded catalogue and defines how a
+ * key becomes a string.
+ *
+ * Extend it to support a catalogue shape the shipped adapters do not cover.
+ * `loadLocales` accepts either a plain object or a {@link BaseLocaleLoader},
+ * so where the files come from is the loader's problem, not the adapter's.
+ */
 export abstract class BaseLocaleAdapter<Options = any> {
 	protected readonly options?: Options;
 	protected _locales: Record<string, Record<string, unknown>> = {};

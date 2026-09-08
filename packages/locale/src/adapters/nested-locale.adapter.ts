@@ -1,13 +1,23 @@
-import type { BaseLocaleLoader } from "../loaders/base-locale.loader";
-import { BaseLocaleAdapter } from "./base-locale.adapter";
+import type { BaseLocaleLoader } from "../loaders/base-locale.loader.js";
+import { BaseLocaleAdapter } from "./base-locale.adapter.js";
 
 type TranslationData = Record<string, any>;
 
+/** Options for {@link NestedLocaleAdapter}. */
 export interface NestedLocaleAdapterOptions {
+	/**
+	 * Used when the requested locale has no entry for the key. Defaults to
+	 * `en-US`.
+	 */
 	fallbackLocale?: string;
 	locales?: Record<string, TranslationData> | BaseLocaleLoader;
 }
 
+/**
+ * Nested catalogue: `commands.hello` walks into `{ commands: { hello } }`,
+ * which is how most translation files are written. Placeholders are
+ * `{{ name }}`.
+ */
 export class NestedLocaleAdapter extends BaseLocaleAdapter<NestedLocaleAdapterOptions> {
 	public getTranslation(
 		key: string,

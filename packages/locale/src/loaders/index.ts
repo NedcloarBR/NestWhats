@@ -1,2 +1,2 @@
-export * from "./base-locale.loader";
-export * from "./json-locale.loader";
+export * from "./base-locale.loader.js";
+export * from "./json-locale.loader.js";

@@ -1,14 +1,21 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { BaseLocaleLoader } from "./base-locale.loader";
+import { BaseLocaleLoader } from "./base-locale.loader.js";
 
+/** Options for {@link JSONLocaleLoader}. */
 export interface JSONLocaleLoaderOptions {
+	/** Directory holding one folder or file per locale. */
 	basePath: string;
+	/**
+	 * Names to skip; defaults to the usual repository clutter (`.git`,
+	 * `README.md`, `crowdin.yml`).
+	 */
 	ignore?: string[];
 }
 
 const DEFAULT_IGNORE = [".git", ".gitkeep", "crowdin.yml", "README.md"];
 
+/** Loads JSON translation files from disk. */
 export class JSONLocaleLoader extends BaseLocaleLoader<JSONLocaleLoaderOptions> {
 	public constructor(options: JSONLocaleLoaderOptions) {
 		super({
@@ -18,6 +25,12 @@ export class JSONLocaleLoader extends BaseLocaleLoader<JSONLocaleLoaderOptions> 
 	}
 
 	public async load(): Promise<Record<string, Record<string, unknown>>> {
+		if (!fs.existsSync(this.options.basePath)) {
+			throw new Error(
+				`[NestWhats] JSONLocaleLoader basePath "${this.options.basePath}" does not exist`,
+			);
+		}
+
 		const locales: Record<string, Record<string, unknown>> = {};
 
 		const localeFolders = fs

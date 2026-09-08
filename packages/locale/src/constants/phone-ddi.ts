@@ -1,3 +1,10 @@
+/**
+ * Country calling code to locale, used by {@link PhoneCountryResolver}.
+ *
+ * Longest prefix wins, so the three-digit codes are matched before the shorter
+ * ones. A country with several official languages is mapped to the one its
+ * WhatsApp users most likely read.
+ */
 export const DDI_LOCALE: Record<string, string> = {
 	// Americas
 	"1": "en-US",
