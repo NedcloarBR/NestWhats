@@ -8,32 +8,46 @@
 		"apps/*"
 	],
 	"scripts": {
-		"build": "nx run-many -t build",
+		"build": "nx run-many -t build --exclude=@nestwhats/docs",
+		"typecheck": "nx run-many -t typecheck --exclude=@nestwhats/docs",
+		"test": "nx run-many -t test --exclude=@nestwhats/docs",
+		"test:watch": "vitest --config packages/core/vitest.config.ts",
+		"test:coverage": "vitest run --coverage --config packages/core/vitest.config.ts",
 		"build:core": "nx run core:build",
 		"build:dashboard": "nx run dashboard:build",
-		"build:messaging": "nx run messaging:build",
-		"check": "biome check --write packages/*/src",
-		"format": "biome format --write packages/*/src",
-		"lint": "biome lint packages/*/src",
+		"build:locale": "nx run locale:build",
+		"build:platform-baileys": "nx run platform-baileys:build",
+		"build:platform-wwjs": "nx run platform-wwjs:build",
+		"build:webhook": "nx run webhook:build",
+		"docs:start": "yarn workspace @nestwhats/docs start",
+		"docs:build": "yarn workspace @nestwhats/docs build",
+		"docs:serve": "yarn workspace @nestwhats/docs serve",
+		"check": "biome check --write packages/*/src apps/*/src packages/*/test examples/*/src",
+		"format": "biome format --write packages/*/src apps/*/src packages/*/test examples/*/src",
+		"lint": "biome lint packages/*/src apps/*/src packages/*/test examples/*/src",
 		"release:core": "yarn workspace nestwhats release-it",
 		"release:dashboard": "yarn workspace @nestwhats/dashboard release-it",
 		"release:locale": "yarn workspace @nestwhats/locale release-it",
-		"release:messaging": "yarn workspace @nestwhats/messaging release-it",
+		"release:platform-baileys": "yarn workspace @nestwhats/platform-baileys release-it",
+		"release:platform-wwjs": "yarn workspace @nestwhats/platform-whatsapp-web.js release-it",
+		"release:webhook": "yarn workspace @nestwhats/webhook release-it",
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "2.4.16",
 		"@commitlint/cli": "19.8.1",
 		"@commitlint/config-angular": "19.8.1",
-		"@nedcloarbr/biome-config": "^1.9.2",
+		"@nedcloarbr/biome-config": "^2.1.0",
 		"@nx/js": "22.7.3",
+		"@vitest/coverage-v8": "^3",
 		"globals": "^16.5.0",
 		"husky": "^9.1.7",
 		"lint-staged": "15.5.2",
 		"nx": "22.7.3",
-		"typescript": "5.9.3"
+		"typescript": "6.0.3",
+		"vitest": "^3"
 	},
 	"engines": {
-		"node": ">=20"
+		"node": ">=20.19.0"
 	}
 }
