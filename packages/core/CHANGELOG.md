@@ -1,6 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [4.0.0](https://github.com/NedcloarBR/NestWhats/compare/v3.1.1...v4.0.0) - (2026-09-09)
+
+## Features
+
+- **[breaking]** **core:** Rebuild the core around an adapter contract ([4e4d6ba](https://github.com/NedcloarBR/NestWhats/commit/4e4d6ba11ea20293a8861269009821a9a030fe06))
+
+## Documentation
+
+- **core:** Rewrite the README for the adapter-based core ([9a29da3](https://github.com/NedcloarBR/NestWhats/commit/9a29da34b6314be380da73c67b308d07299eb7fc))
+
+## Testing
+
+- **core:** Cover ids, capabilities, registry and reconnection ([37fb2ed](https://github.com/NedcloarBR/NestWhats/commit/37fb2eddc635fe1cffdbd583ae039c682fc6ff64))
+
 # [3.1.1](https://github.com/NedcloarBR/NestWhats/compare/v3.1.0...v3.1.1) - (2026-06-07)
 
 ## Bug Fixes
