@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [3.0.0](https://github.com/NedcloarBR/NestWhats/compare/dashboard-v2.0.0...dashboard-v3.0.0) - (2026-09-09)
+
+## Features
+
+- **[breaking]** **dashboard:** Track the v4 adapter contract ([7ed46e4](https://github.com/NedcloarBR/NestWhats/commit/7ed46e4f98bf1e64b639e50503c928a5eded9743))
+
+## Bug Fixes
+
+- **dashboard:** Keep regex escapes alive through the template ([6e1744e](https://github.com/NedcloarBR/NestWhats/commit/6e1744ec71fb1f23f373c8033ced93ea7c898a68))
+
 # [dashboard-v2.0.0](https://github.com/NedcloarBR/NestWhats/compare/v3.0.0...dashboard-v2.0.0) - (2026-06-07)
 
 ## Features
