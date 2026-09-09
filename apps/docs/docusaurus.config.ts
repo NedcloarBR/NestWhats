@@ -58,7 +58,7 @@ const config: Config = {
 		defaultLocale: "en",
 		locales: ["en", "pt-BR"],
 		localeConfigs: {
-			en: { label: "English", htmlLang: "en-GB" },
+			en: { label: "English", htmlLang: "en" },
 			"pt-BR": { label: "Português (Brasil)", htmlLang: "pt-BR" },
 		},
 	},
@@ -78,6 +78,23 @@ const config: Config = {
 				href: "https://fonts.gstatic.com",
 				crossorigin: "anonymous",
 			},
+		},
+		{
+			tagName: "script",
+			attributes: { type: "application/ld+json" },
+			innerHTML: JSON.stringify({
+				"@context": "https://schema.org",
+				"@type": "SoftwareSourceCode",
+				name: "NestWhats",
+				description:
+					"A NestJS framework for working with WhatsApp: send and receive messages with decorators, dependency injection, guards and pipes, over one adapter contract.",
+				url: `https://${GITHUB_ORG.toLowerCase()}.github.io/${GITHUB_REPO}/`,
+				codeRepository: `https://github.com/${GITHUB_ORG}/${GITHUB_REPO}`,
+				programmingLanguage: "TypeScript",
+				runtimePlatform: "Node.js",
+				license: "https://www.gnu.org/licenses/gpl-3.0.html",
+				author: { "@type": "Person", name: GITHUB_ORG },
+			}),
 		},
 	],
 
@@ -118,6 +135,23 @@ const config: Config = {
 				blog: false,
 				theme: {
 					customCss: "./src/css/custom.css",
+				},
+				sitemap: {
+					// The generated API reference is 323 of the 346 pages. Left at
+					// the default weight it drowns the two dozen pages a person
+					// actually searches for, so it is ranked below them rather than
+					// dropped: a search for a class name should still land on it.
+					createSitemapItems: async ({
+						defaultCreateSitemapItems,
+						...rest
+					}) => {
+						const items = await defaultCreateSitemapItems(rest);
+						return items.map((item) =>
+							item.url.includes("/docs/api")
+								? { ...item, priority: 0.3, changefreq: "monthly" as const }
+								: item,
+						);
+					},
 				},
 			} satisfies Preset.Options,
 		],
@@ -185,7 +219,17 @@ const config: Config = {
 		: [],
 
 	themeConfig: {
-		image: "img/logo.png",
+		image: "img/social-card.png",
+		metadata: [
+			{
+				name: "keywords",
+				content:
+					"nestjs, whatsapp, whatsapp bot, nestjs whatsapp, whatsapp-web.js, baileys, typescript, nodejs, whatsapp api, chatbot",
+			},
+			{ name: "author", content: GITHUB_ORG },
+			{ property: "og:type", content: "website" },
+			{ property: "og:site_name", content: "NestWhats" },
+		],
 		colorMode: {
 			// The reader's own setting decides; `defaultMode` is only the fallback
 			// for a browser that reports no preference at all.

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nedcloarbr.github.io/NestWhats/sitemap.xml
+Sitemap: https://nedcloarbr.github.io/NestWhats/pt-BR/sitemap.xml
