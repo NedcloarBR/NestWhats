@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"noEmit": true,
+		"baseUrl": "../../",
+		"paths": {
+			"nestwhats": ["packages/core/src/index.ts"]
+		}
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
+}

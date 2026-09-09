@@ -1,0 +1,21 @@
+{
+	"git": {
+		"commitMessage": "chore(webhook): release webhook-v${version}",
+		"requireBranch": "master",
+		"requireCommits": true,
+		"tagName": "webhook-v${version}"
+	},
+	"github": {
+		"release": true,
+		"releaseName": "@nestwhats/webhook v${version}",
+		"releaseNotes": "git cliff --tag webhook-v${version} --unreleased --strip all -c ../../cliff.toml -r ../.. --include-path 'packages/webhook/**' --tag-pattern '^webhook-v'",
+		"assets": ["nestwhats-webhook-*.tgz"]
+	},
+	"npm": {
+		"publish": true
+	},
+	"hooks": {
+		"before:bump": "yarn run -T nx build webhook",
+		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag webhook-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/webhook/**' --tag-pattern '^webhook-v' && git add CHANGELOG.md && rm -f nestwhats-webhook-*.tgz && npm pack"
+	}
+}
