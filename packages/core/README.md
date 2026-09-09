@@ -28,9 +28,12 @@ NestWhats is a NestJS framework for working with WhatsApp — a bot, the message
 
 Available adapters:
 
-| Adapter | Package |
-|---------|---------|
-| [whatsapp-web.js](https://wwebjs.dev/) | [`@nestwhats/platform-whatsapp-web.js`](https://www.npmjs.com/package/@nestwhats/platform-whatsapp-web.js) |
+| Adapter | Package | How it connects |
+|---------|---------|-----------------|
+| [whatsapp-web.js](https://wwebjs.dev/) | [`@nestwhats/platform-whatsapp-web.js`](https://www.npmjs.com/package/@nestwhats/platform-whatsapp-web.js) | A real WhatsApp Web session in a headless browser. Widest feature set, about a gigabyte of memory per client |
+| [Baileys](https://baileys.wiki/) | [`@nestwhats/platform-baileys`](https://www.npmjs.com/package/@nestwhats/platform-baileys) | A WebSocket, no browser. Sessions cost megabytes, and it reaches status, presence, communities and channels |
+
+[Choosing a platform](https://nedcloarbr.github.io/NestWhats/docs/platforms/overview) compares what each one can do.
 
 > [!IMPORTANT]
 > **It is not guaranteed you will not be blocked by using this method. WhatsApp does not allow bots or unofficial clients on their platform, so this shouldn't be considered totally safe.**
@@ -40,10 +43,20 @@ Available adapters:
 > [!NOTE]
 > NodeJS `v20.19+` is required
 
+The core connects to nothing on its own, so install it with a platform:
+
 ```bash
 $ npm i nestwhats @nestwhats/platform-whatsapp-web.js whatsapp-web.js
 $ yarn add nestwhats @nestwhats/platform-whatsapp-web.js whatsapp-web.js
 $ pnpm add nestwhats @nestwhats/platform-whatsapp-web.js whatsapp-web.js
+```
+
+Or with Baileys:
+
+```bash
+$ npm i nestwhats @nestwhats/platform-baileys @whiskeysockets/baileys
+$ yarn add nestwhats @nestwhats/platform-baileys @whiskeysockets/baileys
+$ pnpm add nestwhats @nestwhats/platform-baileys @whiskeysockets/baileys
 ```
 
 ## ⚙️ Usage
@@ -165,7 +178,9 @@ Base events, available on every adapter:
 
 The adapter emits only the first two; the core derives the rest from `connectionUpdate` (see [Writing an adapter](#-writing-an-adapter)). `messageUpsert` carries every message the platform surfaces, sent or received — filter with `message.fromMe`, or set `ignoreSelf` to drop your own before commands run.
 
-Platform packages add their own events via module augmentation — after importing the platform package, platform-specific events are available in `@On`/`ContextOf` with full typing. See the platform package README for the list and for typed decorators like `WWebJsOn`.
+Platform packages add their own events via module augmentation — after importing the platform package, platform-specific events are available in `@On`/`ContextOf` with full typing. Each ships a typed decorator for its own set too: `WWebJsOn` and `BaileysOn`. See the platform package README for the list.
+
+One name is deliberately left out of the global augmentation: `call`. Both platforms emit an event by that name with a different payload, and two augmentations disagreeing on one property is a compile error in an application that installs both, so `@BaileysOn('call')` types it and `@On('call')` does not.
 
 ### Event options
 
