@@ -1,0 +1,17 @@
+{
+	"version.label": {
+		"message": "Próxima"
+	},
+	"sidebar.guide.category.Core concepts": {
+		"message": "Conceitos do core"
+	},
+	"sidebar.guide.category.Platforms": {
+		"message": "Plataformas"
+	},
+	"sidebar.guide.category.Recipes": {
+		"message": "Receitas"
+	},
+	"sidebar.guide.category.Techniques": {
+		"message": "Técnicas"
+	}
+}

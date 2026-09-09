@@ -1,0 +1,17 @@
+{
+	"item.label.Documentation": {
+		"message": "Documentação",
+		"description": "Navbar item with label Documentation"
+	},
+	"item.label.API": {
+		"message": "API"
+	},
+	"title": {
+		"message": "NestWhats",
+		"description": "The title in the navbar"
+	},
+	"logo.alt": {
+		"message": "NestWhats",
+		"description": "The alt text of navbar logo"
+	}
+}

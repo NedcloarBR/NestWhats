@@ -1,0 +1,547 @@
+/* The hero is one centred column, the way necord's is: the headline carries the
+   page, and the panel under it is the proof. */
+.hero {
+	padding: 4.5rem 1rem 4rem;
+	border-bottom: 1px solid var(--nw-rule);
+}
+
+.heroInner {
+	max-width: 54rem;
+	margin: 0 auto;
+	text-align: center;
+}
+
+/* The mark and the name, once, before the sentence they belong to. It is the
+   only place the logo appears at size, so it carries the identity the headline
+   then spends on WhatsApp and Nest. */
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.7rem;
+	margin-bottom: 1.6rem;
+	font-size: 1.75rem;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	color: var(--nw-ink);
+}
+
+.brandMark {
+	width: 3rem;
+	height: 3rem;
+}
+
+@media (max-width: 640px) {
+	.brand {
+		font-size: 1.4rem;
+	}
+
+	.brandMark {
+		width: 2.4rem;
+		height: 2.4rem;
+	}
+}
+
+/* The headline is the design element, so it gets the tight tracking and the
+   size to carry the page on its own. The two names are coloured because they
+   are the two things the sentence is about, not for emphasis. */
+.title {
+	font-size: clamp(2.2rem, 5.4vw, 3.8rem);
+	line-height: 1.08;
+	letter-spacing: -0.035em;
+	font-weight: 700;
+	margin: 0 0 1.35rem;
+	color: var(--nw-ink);
+	text-wrap: balance;
+}
+
+.whatsapp {
+	color: var(--nw-wa-ink);
+}
+
+.nest {
+	color: var(--nw-nest);
+}
+
+.lede {
+	font-size: 1.06rem;
+	line-height: 1.65;
+	max-width: 64ch;
+	margin: 0 auto 1.9rem;
+	color: var(--ifm-color-emphasis-700);
+}
+
+/* A library's mark and name, sized to sit on the text baseline without pushing
+   the line apart. */
+.lib {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.32em;
+	font-weight: 500;
+	color: var(--ifm-font-color-base);
+	white-space: nowrap;
+}
+
+.lib:hover {
+	color: var(--ifm-color-primary);
+	text-decoration: none;
+}
+
+.libIcon {
+	width: 1.15em;
+	height: 1.15em;
+	object-fit: contain;
+	flex-shrink: 0;
+}
+
+.actions {
+	display: flex;
+	gap: 0.7rem;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin-bottom: 2rem;
+}
+
+.primaryAction,
+.secondaryAction {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.65rem 1.3rem;
+	border-radius: var(--ifm-global-radius);
+	font-size: 0.95rem;
+	font-weight: 500;
+	border: 1px solid transparent;
+	transition:
+		background-color var(--ifm-transition-fast),
+		border-color var(--ifm-transition-fast);
+}
+
+.primaryAction {
+	background: var(--ifm-color-primary);
+	color: var(--nw-paper);
+}
+
+.primaryAction:hover {
+	background: var(--ifm-color-primary-dark);
+	color: var(--nw-paper);
+	text-decoration: none;
+}
+
+.secondaryAction {
+	border-color: var(--nw-rule);
+	color: var(--ifm-font-color-base);
+}
+
+.secondaryAction:hover {
+	border-color: var(--ifm-color-primary);
+	color: var(--ifm-color-primary);
+	text-decoration: none;
+}
+
+.installLabel {
+	font-size: 0.85rem;
+	color: var(--ifm-color-emphasis-600);
+	margin: 0 0 0.5rem;
+}
+
+/* An install line you can copy. Sized so the whole command fits on one line:
+   wrapping it left "web.js" alone on a second row, which read as a mistake. */
+.install {
+	display: flex;
+	justify-content: center;
+}
+
+.install :global(.theme-code-block) {
+	margin: 0;
+	max-width: 100%;
+}
+
+.install :global(pre) {
+	font-size: 0.8rem;
+	padding: 0.65rem 0.9rem;
+}
+
+.install :global(code) {
+	white-space: pre;
+}
+
+/* One panel: the tab strip, the code, and — on the handler that produces one —
+   the conversation it produces. Kept as a single object because that is the
+   claim, and separate floating panels would only be separate panels. */
+.demo {
+	position: relative;
+	max-width: 58rem;
+	margin: 3.25rem auto 0;
+	border: 1px solid var(--nw-rule);
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--nw-paper-rise);
+	text-align: left;
+	box-shadow:
+		0 1px 2px rgba(16, 24, 32, 0.04),
+		0 8px 24px rgba(16, 24, 32, 0.06);
+}
+
+/* The window buttons a code panel has had since the first screenshot of an
+   editor. Decoration, so they sit outside the tab list and out of the
+   accessibility tree. */
+.chrome {
+	position: absolute;
+	top: 0;
+	left: 0.95rem;
+	height: 3rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	pointer-events: none;
+}
+
+.chrome span {
+	width: 0.65rem;
+	height: 0.65rem;
+	border-radius: 50%;
+	background: var(--nw-rule);
+}
+
+.chrome span:nth-child(1) {
+	background: #ff5f57;
+}
+
+.chrome span:nth-child(2) {
+	background: #febc2e;
+}
+
+.chrome span:nth-child(3) {
+	background: #28c840;
+}
+
+/* The strip reads as the panel's own header: flush to the edges, underlined
+   rather than pilled, so it does not compete with the code below it. */
+.demo :global(.tabs) {
+	margin: 0;
+	padding: 0 0.5rem 0 4.6rem;
+	border-bottom: 1px solid var(--nw-rule);
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.demo :global(.tabs)::-webkit-scrollbar {
+	display: none;
+}
+
+.demo :global(.tabs__item) {
+	border-radius: 0;
+	border-bottom: 2px solid transparent;
+	padding: 0.75rem 0.8rem;
+	font-family: var(--ifm-font-family-monospace);
+	font-size: 0.82rem;
+	font-weight: 400;
+	white-space: nowrap;
+	color: var(--ifm-color-emphasis-600);
+}
+
+.demo :global(.tabs__item--active) {
+	border-bottom-color: var(--ifm-color-primary);
+	background: transparent;
+	color: var(--nw-ink);
+	font-weight: 500;
+}
+
+.demo :global(.tabs-container) {
+	margin-bottom: 0;
+}
+
+/* The tabs hold snippets of different lengths, and letting the panel resize
+   moved everything below it every time someone clicked. The floor is the
+   tallest of them. */
+.demo :global(.margin-top--md) {
+	/* biome-ignore lint/complexity/noImportantStyles: infima declares
+     .margin-top--md with !important, so overriding it needs the same. */
+	margin-top: 0 !important;
+	min-height: 23rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.demo :global(.margin-top--md) > div[role="tabpanel"]:not([hidden]) {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.demo :global(.theme-code-block) {
+	margin: 0;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	flex: 1;
+}
+
+.demo :global(div[class^="codeBlockContainer"]) {
+	border: none;
+	border-radius: 0;
+}
+
+/* One line saying what the tab is showing, for the examples that have no
+   conversation to show instead. */
+.demoNote {
+	margin: 0;
+	padding: 0.9rem 1.15rem;
+	border-top: 1px solid var(--nw-rule);
+	font-size: 0.87rem;
+	line-height: 1.5;
+	color: var(--ifm-color-emphasis-700);
+}
+
+/* WhatsApp's own chat surface: its wallpaper beige in light, its near-black
+   teal in dark. A neutral panel with outlined boxes did not read as a
+   conversation, which was the point of having one here at all. */
+.thread {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1.15rem 1.1rem;
+	border-top: 1px solid var(--nw-rule);
+	background-color: var(--nw-chat);
+}
+
+.bubbleIn,
+.bubbleOut {
+	position: relative;
+	font-size: 0.9rem;
+	line-height: 1.4;
+	padding: 0.4rem 0.55rem 0.4rem 0.6rem;
+	border-radius: 7.5px;
+	max-width: 65%;
+	width: fit-content;
+	color: var(--nw-bubble-text);
+	box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+}
+
+.bubbleIn {
+	align-self: flex-start;
+	background: var(--nw-bubble-in);
+	border-top-left-radius: 0;
+	font-family: var(--ifm-font-family-monospace);
+}
+
+.bubbleOut {
+	align-self: flex-end;
+	background: var(--nw-bubble-out);
+	border-top-right-radius: 0;
+	padding-right: 0.55rem;
+}
+
+/* The tail. WhatsApp puts it at the top outer corner of the first bubble in a
+   run, which is the detail that makes the shape recognisable. */
+.bubbleIn::before,
+.bubbleOut::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	width: 8px;
+	height: 13px;
+}
+
+.bubbleIn::before {
+	left: -8px;
+	background: var(--nw-bubble-in);
+	clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+.bubbleOut::before {
+	right: -8px;
+	background: var(--nw-bubble-out);
+	clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* Time and ticks sit inside the bubble, bottom right, smaller and quieter than
+   the text — the way a real one does. */
+.meta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	float: right;
+	margin: 0.35rem -0.1rem -0.15rem 0.5rem;
+	font-size: 0.68rem;
+	color: var(--nw-bubble-meta);
+	line-height: 1;
+}
+
+.ticks {
+	width: 16px;
+	height: 11px;
+	flex-shrink: 0;
+}
+
+/* One orchestrated moment: sent, delivered, read — the states the library
+   reports, drawn once on load. Nothing else on the page moves by itself. */
+.tickFirst,
+.tickSecond {
+	stroke: var(--nw-bubble-meta);
+	stroke-dasharray: 16;
+	stroke-dashoffset: 16;
+	animation:
+		draw 0.28s ease-out forwards,
+		turnRead 0.35s ease-out forwards;
+}
+
+.tickFirst {
+	animation-delay: 0.6s, 1.55s;
+}
+
+.tickSecond {
+	animation-delay: 1.1s, 1.55s;
+}
+
+@keyframes draw {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes turnRead {
+	to {
+		stroke: var(--nw-tick);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tickFirst,
+	.tickSecond {
+		stroke-dashoffset: 0;
+		stroke: var(--nw-tick);
+		animation: none;
+	}
+}
+
+.platforms {
+	padding: 3.5rem 1rem 4.5rem;
+}
+
+.platformsInner,
+.extrasInner {
+	max-width: 1140px;
+	margin: 0 auto;
+}
+
+.sectionTitle {
+	font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin: 0 0 0.7rem;
+	max-width: 24ch;
+	color: var(--nw-ink);
+}
+
+.sectionLede {
+	max-width: 58ch;
+	margin-bottom: 2.25rem;
+	color: var(--ifm-color-emphasis-700);
+}
+
+.platformList {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+	gap: 0 2.5rem;
+}
+
+/* A rule between them rather than a box around each: two adapters are a short
+   list, and boxing them would make the page look like a pricing table. */
+.platform {
+	padding: 1.15rem 0;
+	border-top: 1px solid var(--nw-rule);
+}
+
+.platform .lib {
+	font-family: var(--ifm-font-family-monospace);
+	font-size: 1rem;
+	color: var(--nw-ink);
+	gap: 0.45em;
+}
+
+.platform .libIcon {
+	width: 1.5em;
+	height: 1.5em;
+}
+
+.platformNote {
+	margin: 0.5rem 0 0;
+	font-size: 0.92rem;
+	line-height: 1.5;
+	color: var(--ifm-color-emphasis-700);
+	max-width: 42ch;
+}
+
+.platformDocs {
+	display: inline-block;
+	margin-top: 0.55rem;
+	font-size: 0.9rem;
+}
+
+.sectionNote {
+	margin-top: 1.75rem;
+	font-size: 0.95rem;
+	color: var(--ifm-color-emphasis-700);
+	max-width: 62ch;
+}
+
+.extras {
+	padding: 3.5rem 1rem 4.5rem;
+	border-top: 1px solid var(--nw-rule);
+}
+
+.extrasList {
+	list-style: none;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0 2.5rem;
+}
+
+/* A rule above each, matching the platform list: the page already has one
+   visual device for "a short list of things", and a second would be noise. */
+.extra {
+	display: block;
+	padding: 1rem 0;
+	border-top: 1px solid var(--nw-rule);
+	color: inherit;
+}
+
+.extra:hover {
+	text-decoration: none;
+	color: inherit;
+}
+
+.extraName {
+	display: block;
+	font-weight: 600;
+	color: var(--nw-ink);
+	margin-bottom: 0.25rem;
+}
+
+.extra:hover .extraName {
+	color: var(--ifm-color-primary);
+}
+
+.extraNote {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.45;
+	color: var(--ifm-color-emphasis-700);
+	max-width: 32ch;
+}
+
+@media (max-width: 640px) {
+	.hero {
+		padding-top: 2.75rem;
+	}
+
+	.demo :global(.margin-top--md) {
+		min-height: 0;
+	}
+}

@@ -1,0 +1,332 @@
+/**
+ * Two identities, each in its own place.
+ *
+ * This is a NestJS framework, so the chrome — links, buttons, active states —
+ * is Nest's red. It talks to WhatsApp, so the surfaces that represent a
+ * conversation use WhatsApp's own colours: its dark panel, its bubble greens,
+ * its blue read tick. Neither is decoration and neither is borrowed: the site
+ * looks like what it is, a Nest package for WhatsApp.
+ */
+:root {
+	--nw-paper: #f7f8fa;
+	--nw-paper-rise: #ffffff;
+	--nw-ink: #101820;
+	--nw-rule: #e1e5ea;
+
+	/* NestJS */
+	--nw-nest: #e0234e;
+	--nw-nest-dark: #c11e43;
+
+	/* WhatsApp, for anything that stands in for a conversation. */
+	--nw-wa: #25d366;
+	/* The brand green is unreadable as text on paper; this is WhatsApp's own
+     darker teal, which carries the same identity at 4.2:1. */
+	--nw-wa-ink: #128c7e;
+	--nw-chat: #efeae2;
+	--nw-bubble-in: #ffffff;
+	--nw-bubble-out: #d9fdd3;
+	--nw-tick: #2f9ed4;
+	--nw-bubble-text: #111b21;
+	--nw-bubble-meta: #667781;
+
+	--nw-absent: #b23b32;
+
+	--ifm-color-primary: #c11e43;
+	--ifm-color-primary-dark: #ae1b3c;
+	--ifm-color-primary-darker: #a41a39;
+	--ifm-color-primary-darkest: #87152f;
+	--ifm-color-primary-light: #d4214a;
+	--ifm-color-primary-lighter: #de2450;
+	--ifm-color-primary-lightest: #e5476b;
+
+	--ifm-background-color: var(--nw-paper);
+	--ifm-background-surface-color: var(--nw-paper-rise);
+	--ifm-font-color-base: #2a323c;
+	--ifm-heading-color: var(--nw-ink);
+	--ifm-toc-border-color: var(--nw-rule);
+	--ifm-hr-border-color: var(--nw-rule);
+
+	--ifm-font-family-base: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+	--ifm-font-family-monospace:
+		"IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+	--ifm-heading-font-weight: 600;
+	--ifm-code-font-size: 88%;
+	--ifm-code-background: rgba(224, 35, 78, 0.07);
+	--ifm-code-padding-horizontal: 0.35rem;
+	--ifm-global-radius: 6px;
+
+	--docusaurus-highlighted-code-line-bg: rgba(224, 35, 78, 0.1);
+}
+
+/* `:root[data-theme]` rather than `[data-theme]`: Docusaurus ships its own dark
+   values under `html[data-theme='dark']`, which outranks a bare attribute
+   selector and would keep its neutral grey ground. */
+:root[data-theme="dark"] {
+	/* WhatsApp's own dark surfaces, so the site and the chat agree. */
+	--nw-paper: #111b21;
+	--nw-paper-rise: #1a252d;
+	--nw-ink: #e9edf1;
+	--nw-rule: #2a3942;
+
+	--nw-nest: #ff4d6d;
+	--nw-wa-ink: #25d366;
+	--nw-nest-dark: #e0234e;
+
+	--nw-chat: #0b141a;
+	--nw-bubble-in: #202c33;
+	--nw-bubble-out: #005c4b;
+	--nw-tick: #53bdeb;
+	--nw-bubble-text: #e9edf1;
+	--nw-bubble-meta: #8696a0;
+
+	--nw-absent: #f0736a;
+
+	--ifm-color-primary: #ff4d6d;
+	--ifm-color-primary-dark: #ff2b52;
+	--ifm-color-primary-darker: #ff1a45;
+	--ifm-color-primary-darkest: #e00030;
+	--ifm-color-primary-light: #ff6f88;
+	--ifm-color-primary-lighter: #ff8095;
+	--ifm-color-primary-lightest: #ffb3c1;
+
+	--ifm-background-color: var(--nw-paper);
+	--ifm-background-surface-color: var(--nw-paper-rise);
+	--ifm-font-color-base: #c5cfd6;
+	--ifm-heading-color: var(--nw-ink);
+	--ifm-code-background: rgba(255, 77, 109, 0.13);
+
+	--docusaurus-highlighted-code-line-bg: rgba(255, 77, 109, 0.14);
+}
+
+/* Docusaurus sets the size on `.markdown h1:first-child`; the leading `html`
+   is what outranks it. The title should announce the page, not the site. */
+html .markdown h1:first-child {
+	font-size: 2.1rem;
+	letter-spacing: -0.025em;
+	margin-bottom: 1.25rem;
+}
+
+/* Prose measure. Docs read badly at full width, and Docusaurus does not cap it. */
+.markdown > p,
+.markdown > ul,
+.markdown > ol,
+.markdown > blockquote {
+	max-width: 74ch;
+}
+
+.markdown h2 {
+	--ifm-h2-font-size: 1.6rem;
+	margin-top: 2.75rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--nw-rule);
+}
+
+.markdown h3 {
+	--ifm-h3-font-size: 1.2rem;
+	margin-top: 2rem;
+}
+
+/* Tables carry most of this documentation's meaning — which platform does what,
+   which capability maps to which method — so they get a real gutter between
+   columns, one hairline per row, and no zebra. Striping plus borderless cells
+   was the earlier mistake: the rows smeared together and the columns touched. */
+.markdown table {
+	display: table;
+	width: 100%;
+	font-size: 0.92rem;
+	border-collapse: collapse;
+	border: none;
+}
+
+.markdown table thead {
+	background: none;
+}
+
+.markdown table tr {
+	background: none;
+	border: none;
+}
+
+.markdown table tr:nth-child(2n) {
+	background: none;
+}
+
+.markdown table th {
+	font-weight: 600;
+	font-size: 0.85rem;
+	text-align: left;
+	color: var(--ifm-color-emphasis-700);
+	border: none;
+	border-bottom: 1px solid var(--ifm-color-emphasis-400);
+	padding: 0 1.25rem 0.6rem 0;
+}
+
+.markdown table td {
+	border: none;
+	border-bottom: 1px solid var(--nw-rule);
+	padding: 0.65rem 1.25rem 0.65rem 0;
+	vertical-align: baseline;
+}
+
+.markdown table th:last-child,
+.markdown table td:last-child {
+	padding-right: 0;
+}
+
+.markdown table code {
+	font-size: 0.86em;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--ifm-color-primary);
+	white-space: nowrap;
+}
+
+.navbar {
+	border-bottom: 1px solid var(--nw-rule);
+	box-shadow: none;
+}
+
+.navbar__title {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.menu__link {
+	font-size: 0.9rem;
+}
+
+.menu__link--active {
+	font-weight: 600;
+}
+
+/* A left rule instead of a filled pill: it marks position without turning the
+   sidebar into a stack of buttons. */
+.menu__link--active:not(.menu__link--sublist) {
+	background: none;
+	box-shadow: inset 2px 0 0 var(--ifm-color-primary);
+	border-radius: 0;
+}
+
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
+	font-weight: 600;
+	color: var(--nw-ink);
+}
+
+/* Admonitions: a rule in the state colour, no tinted box. The box is what makes
+   a page look like a template; the rule says the same thing more quietly. */
+.theme-admonition {
+	border: 1px solid var(--nw-rule);
+	border-left-width: 3px;
+	background: var(--ifm-background-surface-color);
+	box-shadow: none;
+}
+
+.theme-admonition-warning,
+.theme-admonition-caution {
+	border-left-color: var(--nw-pending);
+}
+
+.theme-admonition-danger {
+	border-left-color: var(--nw-absent);
+}
+
+.theme-admonition-note,
+.theme-admonition-info,
+.theme-admonition-tip {
+	border-left-color: var(--nw-read);
+}
+
+/* Code blocks carry a filename where the snippet is a whole file, so the reader
+   knows where it goes without being told in prose. */
+div[class^="codeBlockContainer"] {
+	border: 1px solid var(--nw-rule);
+	box-shadow: none;
+}
+
+div[class^="codeBlockTitle"] {
+	font-family: var(--ifm-font-family-monospace);
+	font-size: 0.8rem;
+	font-weight: 400;
+	color: var(--ifm-color-emphasis-700);
+	border-bottom: 1px solid var(--nw-rule);
+}
+
+/* Line numbers sit in their own quiet column: they are for pointing at a line
+   in prose, not for reading. */
+.theme-code-block .token-line > span[class*="codeLineNumber"],
+code[class*="codeBlockLines"] .token-line::before {
+	color: var(--ifm-color-emphasis-500);
+}
+
+/* The copy button is easy to miss until you need it. */
+button[class*="copyButton"] {
+	opacity: 0.7;
+}
+
+button[class*="copyButton"]:hover,
+button[class*="copyButton"]:focus-visible {
+	opacity: 1;
+}
+
+/* Search: the shortcut hint should read as a key, because it is one. */
+.DocSearch-Button-Keys,
+kbd[class*="searchHint"] {
+	font-family: var(--ifm-font-family-monospace);
+}
+
+.pagination-nav__link {
+	border-color: var(--nw-rule);
+}
+
+/* The default footer is a dark slab that ignores the page it sits under. It
+   belongs to the same sheet of paper. */
+.footer {
+	--ifm-footer-background-color: var(--ifm-background-surface-color);
+	--ifm-footer-color: var(--ifm-font-color-base);
+	--ifm-footer-link-color: var(--ifm-font-color-base);
+	--ifm-footer-title-color: var(--nw-ink);
+	border-top: 1px solid var(--nw-rule);
+}
+
+.footer__title {
+	font-size: 0.82rem;
+	font-weight: 600;
+}
+
+.footer__link-item {
+	font-size: 0.9rem;
+}
+
+.footer__copyright {
+	font-size: 0.82rem;
+	color: var(--ifm-color-emphasis-600);
+}
+
+.navbar-github::before {
+	content: "";
+	width: 22px;
+	height: 22px;
+	display: flex;
+	background-color: var(--ifm-navbar-link-color);
+	mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.3v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3Z'/%3E%3C/svg%3E");
+	mask-repeat: no-repeat;
+	transition: background-color var(--ifm-transition-fast);
+}
+
+.navbar-github:hover::before {
+	background-color: var(--ifm-navbar-link-hover-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		/* biome-ignore lint/complexity/noImportantStyles: a reduced-motion kill switch has to beat every author animation, Docusaurus' own included. */
+		animation-duration: 0.01ms !important;
+		/* biome-ignore lint/complexity/noImportantStyles: same kill switch. */
+		animation-iteration-count: 1 !important;
+		/* biome-ignore lint/complexity/noImportantStyles: same kill switch. */
+		transition-duration: 0.01ms !important;
+	}
+}

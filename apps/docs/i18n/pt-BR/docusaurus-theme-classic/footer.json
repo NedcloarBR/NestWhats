@@ -1,0 +1,65 @@
+{
+	"link.title.Documentation": {
+		"message": "Documentação",
+		"description": "The title of the footer links column with title=Documentation in the footer"
+	},
+	"link.title.Packages": {
+		"message": "Pacotes",
+		"description": "The title of the footer links column with title=Packages in the footer"
+	},
+	"link.title.More": {
+		"message": "Mais",
+		"description": "The title of the footer links column with title=More in the footer"
+	},
+	"link.item.label.Introduction": {
+		"message": "Introdução",
+		"description": "The label of footer link with label=Introduction linking to /docs/intro"
+	},
+	"link.item.label.Installation": {
+		"message": "Instalação",
+		"description": "The label of footer link with label=Installation linking to /docs/installation"
+	},
+	"link.item.label.API Reference": {
+		"message": "Referência de API"
+	},
+	"link.item.label.GitHub": {
+		"message": "GitHub",
+		"description": "The label of footer link with label=GitHub linking to https://github.com/NedcloarBR/nestwhats"
+	},
+	"link.item.label.Issues": {
+		"message": "Issues",
+		"description": "The label of footer link with label=Issues linking to https://github.com/NedcloarBR/nestwhats/issues"
+	},
+	"link.item.label.Getting started": {
+		"message": "Getting started",
+		"description": "The label of footer link with label=Getting started linking to /docs/getting-started"
+	},
+	"link.item.label.nestwhats": {
+		"message": "nestwhats",
+		"description": "The label of footer link with label=nestwhats linking to https://www.npmjs.com/package/nestwhats"
+	},
+	"link.item.label.@nestwhats/platform-whatsapp-web.js": {
+		"message": "@nestwhats/platform-whatsapp-web.js",
+		"description": "The label of footer link with label=@nestwhats/platform-whatsapp-web.js linking to https://www.npmjs.com/package/@nestwhats/platform-whatsapp-web.js"
+	},
+	"link.item.label.@nestwhats/platform-baileys": {
+		"message": "@nestwhats/platform-baileys",
+		"description": "The label of footer link with label=@nestwhats/platform-baileys linking to https://www.npmjs.com/package/@nestwhats/platform-baileys"
+	},
+	"link.item.label.@nestwhats/dashboard": {
+		"message": "@nestwhats/dashboard",
+		"description": "The label of footer link with label=@nestwhats/dashboard linking to https://www.npmjs.com/package/@nestwhats/dashboard"
+	},
+	"link.item.label.@nestwhats/webhook": {
+		"message": "@nestwhats/webhook",
+		"description": "The label of footer link with label=@nestwhats/webhook linking to https://www.npmjs.com/package/@nestwhats/webhook"
+	},
+	"link.item.label.@nestwhats/locale": {
+		"message": "@nestwhats/locale",
+		"description": "The label of footer link with label=@nestwhats/locale linking to https://www.npmjs.com/package/@nestwhats/locale"
+	},
+	"copyright": {
+		"message": "Copyright © 2026 NedcloarBR. <a href=\"https://github.com/NedcloarBR/nestwhats/blob/master/License\">GPL-3.0</a> licensed.",
+		"description": "The footer copyright"
+	}
+}
