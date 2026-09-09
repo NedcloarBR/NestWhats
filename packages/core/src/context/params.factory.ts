@@ -1,5 +1,5 @@
 import { ParamData } from "@nestjs/common";
-import { ParamsFactory } from "@nestjs/core/helpers/external-context-creator";
+import { ParamsFactory } from "@nestjs/core/helpers/external-context-creator.js";
 import { NestWhatsBaseDiscovery } from "./base.discovery.js";
 import { NestWhatsParamType } from "./paramtype.enum.js";
 

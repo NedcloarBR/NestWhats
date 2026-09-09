@@ -1,5 +1,5 @@
 import { assignMetadata, PipeTransform, Type } from "@nestjs/common";
-import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
+import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants.js";
 import { NestWhatsParamType } from "../paramtype.enum.js";
 
 /** Builds a NestWhats parameter decorator for one {@link NestWhatsParamType}. */

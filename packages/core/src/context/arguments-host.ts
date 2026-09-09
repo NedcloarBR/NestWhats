@@ -1,5 +1,5 @@
 import { ArgumentsHost } from "@nestjs/common";
-import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import type { NestWhatsEvents } from "../listeners/index.js";
 import { NestWhatsBaseDiscovery } from "./base.discovery.js";
 import { ContextOf } from "./context.interface.js";

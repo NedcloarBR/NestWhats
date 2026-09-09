@@ -1,10 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
+import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants.js";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
-import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator";
+import { ExternalContextCreator } from "@nestjs/core/helpers/external-context-creator.js";
 import { ParamMetadata } from "@nestjs/core/helpers/interfaces/index.js";
-import { STATIC_CONTEXT } from "@nestjs/core/injector/constants";
-import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
+import { STATIC_CONTEXT } from "@nestjs/core/injector/constants.js";
+import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper.js";
 import { CommandDiscovery } from "../commands/command.discovery.js";
 import {
 	COMMAND_GROUP_KEY,
