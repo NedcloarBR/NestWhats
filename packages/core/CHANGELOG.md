@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [4.0.2](https://github.com/NedcloarBR/NestWhats/compare/v4.0.1...v4.0.2) - (2026-09-09)
+
+## Bug Fixes
+
+- **core:** Add the .js extension to NestJS subpath imports ([f3ddb26](https://github.com/NedcloarBR/NestWhats/commit/f3ddb26179c60ef27053a204ce02d4362d335be9))
+
 # [4.0.1](https://github.com/NedcloarBR/NestWhats/compare/v4.0.0...v4.0.1) - (2026-09-09)
 
 ## Bug Fixes
