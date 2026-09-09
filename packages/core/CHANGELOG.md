@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+# [4.0.1](https://github.com/NedcloarBR/NestWhats/compare/v4.0.0...v4.0.1) - (2026-09-09)
+
+## Bug Fixes
+
+- **release:** Resolve biome through yarn in the release hooks ([1e65743](https://github.com/NedcloarBR/NestWhats/commit/1e65743fdd8e635d51bfd5d9fb8bd81f885d2112))
+- **docs:** Match the repository name casing in every URL ([032fdff](https://github.com/NedcloarBR/NestWhats/commit/032fdffcfebc8ac11611392009bfaeb1296ab4a9))
+
+## Documentation
+
+- **core:** Document the Baileys adapter in the README ([8a4cae3](https://github.com/NedcloarBR/NestWhats/commit/8a4cae312dc38a33bde65a3a30b90cf266dc8d77))
+
 # [4.0.0](https://github.com/NedcloarBR/NestWhats/compare/v3.1.1...v4.0.0) - (2026-09-09)
 
 ## Features

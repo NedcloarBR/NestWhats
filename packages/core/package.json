@@ -1,7 +1,7 @@
 {
 	"name": "nestwhats",
 	"description": "Adapter-based WhatsApp framework for NestJS",
-	"version": "4.0.0",
+	"version": "4.0.1",
 	"type": "module",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
