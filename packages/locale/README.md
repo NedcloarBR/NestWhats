@@ -42,7 +42,7 @@ $ pnpm add @nestwhats/locale
 
 ## ⚙️ Setup
 
-Import `NestWhatsLocaleModule` and call `forRoot` with an adapter, one or more resolvers, and an optional fallback locale:
+Import `NestWhatsLocaleModule` and call `forRoot` with an adapter and one or more resolvers. The fallback locale belongs to the adapter, which is what reads it:
 
 ```typescript
 import { Module } from "@nestjs/common";
@@ -56,13 +56,13 @@ import {
   imports: [
     NestWhatsLocaleModule.forRoot({
       adapter: new DefaultLocaleAdapter({
+        fallbackLocale: "en-US",
         locales: {
           "pt-BR": { "ping.response": "Pong!" },
           "en-US": { "ping.response": "Pong!" },
         },
       }),
       resolvers: new PhoneCountryResolver(),
-      fallbackLocale: "en-US",
     }),
   ],
 })
@@ -205,17 +205,27 @@ resolvers: [new PhoneCountryResolver(), new MyDatabaseResolver()]
 Implement `LocaleResolver`:
 
 ```typescript
-import { LocaleResolver } from "@nestwhats/locale";
+import type { LocaleResolver, LocaleResolverHints } from "@nestwhats/locale";
 import { NestWhatsExecutionContext } from "nestwhats";
 
 export class MyResolver implements LocaleResolver {
-  async resolve(context: NestWhatsExecutionContext): Promise<string | undefined> {
-    const [, message] = context.getContext<"message">(); // [client, message]
-    // return a locale string or undefined to fall through
+  async resolve(
+    context: NestWhatsExecutionContext,
+    hints?: LocaleResolverHints,
+  ): Promise<string | undefined> {
+    // [client, message]
+    const [, message] = context.getContext<"message">();
+
+    // A locale string, or undefined to fall through to the next resolver.
     return "pt-BR";
   }
 }
 ```
+
+`hints` carries what the interceptor already worked out for this message —
+`hints.ddi` is the sender's country calling code. Resolving that costs a
+contact lookup for a LID, so a resolver that only needs the code should read
+it from here rather than pay for it again.
 
 Class-based resolvers are also supported — pass the constructor and it is resolved via NestJS `ModuleRef`:
 
@@ -225,20 +235,21 @@ resolvers: [MyResolver]
 
 ## 🔤 Using Translations
 
-Inject the translation function with `@CurrentTranslate()` in any command or listener handler:
+Inject the translation function with `@CurrentTranslate()` in any command or
+listener handler. The message type comes from `nestwhats`, not from a platform
+package, so the same handler works on every adapter:
 
 ```typescript
 import { Injectable } from "@nestjs/common";
-import { Command, Msg } from "nestwhats";
-import { CurrentTranslate, TranslationFn } from "@nestwhats/locale";
-import { Message } from "whatsapp-web.js";
+import { Command, Msg, type NestWhatsMessage } from "nestwhats";
+import { CurrentTranslate, type TranslationFn } from "@nestwhats/locale";
 
 @Injectable()
 export class BotUpdate {
   @Command({ name: "ping" })
   async ping(
     @CurrentTranslate() t: TranslationFn,
-    @Msg() message: Message,
+    @Msg() message: NestWhatsMessage,
   ) {
     await message.reply(t("ping.response", { name: "World" }));
   }
@@ -248,6 +259,42 @@ export class BotUpdate {
 `TranslationFn` signature: `(key: string, placeholders?: Record<string, string>) => string`
 
 If called outside a nestwhats context, `t` returns the key as-is.
+
+## 🏷️ Parameter decorators
+
+| Decorator | Gives you |
+|-----------|-----------|
+| `@CurrentTranslate()` | The translation function for the resolved locale |
+| `@CurrentLocale()` | The locale that won, or the fallback |
+| `@DDI()` | The sender's country calling code, or `undefined` |
+
+All three read one context resolved per message behind an `AsyncLocalStorage`,
+so a service the handler delegates to sees the same answer with no argument
+threaded through:
+
+```typescript
+@Command({ name: "ddi" })
+async ddi(
+  @Msg() message: NestWhatsMessage,
+  @DDI() ddi: string | undefined,
+  @CurrentLocale() locale: string,
+) {
+  await message.reply(ddi ? `+${ddi} -> ${locale}` : `no number, using ${locale}`);
+}
+```
+
+`@DDI()` returning `undefined` is a normal answer, not a failure: a contact
+identified by a LID publishes no number, and a group has none behind it.
+
+`DDI_LOCALE` is the table behind it, country calling code to locale, and
+`ddiOf` reads a code off a number — both exported for use outside a handler:
+
+```typescript
+import { DDI_LOCALE, ddiOf } from "@nestwhats/locale";
+
+DDI_LOCALE["55"];              // 'pt-BR'
+ddiOf("+55 31 98888-7777");    // '55'
+```
 
 ## 📖 License
 
