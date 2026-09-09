@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build locale",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag locale-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**' --tag-pattern '^locale-v' && git add CHANGELOG.md && rm -f nestwhats-locale-*.tgz && npm pack"
+		"after:bump": "yarn run -T biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag locale-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/locale/**' --tag-pattern '^locale-v' && git add CHANGELOG.md && rm -f nestwhats-locale-*.tgz && npm pack"
 	}
 }

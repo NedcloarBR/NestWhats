@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build dashboard",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag dashboard-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' --tag-pattern '^dashboard-v' && git add CHANGELOG.md && rm -f nestwhats-dashboard-*.tgz && npm pack"
+		"after:bump": "yarn run -T biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag dashboard-v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/dashboard/**' --tag-pattern '^dashboard-v' && git add CHANGELOG.md && rm -f nestwhats-dashboard-*.tgz && npm pack"
 	}
 }

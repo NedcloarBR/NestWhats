@@ -16,6 +16,6 @@
 	},
 	"hooks": {
 		"before:bump": "yarn run -T nx build core",
-		"after:bump": "biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' --tag-pattern '^v[0-9]' && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
+		"after:bump": "yarn run -T biome format --write package.json && git add package.json && git cliff --unreleased --prepend ./CHANGELOG.md --tag v${version} -c ../../cliff.toml -r ../.. --include-path 'packages/core/**' --tag-pattern '^v[0-9]' && git add CHANGELOG.md && rm -f nestwhats-*.tgz && npm pack"
 	}
 }
