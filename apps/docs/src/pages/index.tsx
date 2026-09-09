@@ -285,13 +285,13 @@ export default function Home(): ReactNode {
 							</Link>
 							<Link
 								className={styles.secondaryAction}
-								href="https://github.com/NedcloarBR/nestwhats/tree/master/examples"
+								href="https://github.com/NedcloarBR/NestWhats/tree/master/examples"
 							>
 								<Translate id="home.hero.examples">Examples</Translate>
 							</Link>
 							<Link
 								className={styles.secondaryAction}
-								href="https://github.com/NedcloarBR/nestwhats"
+								href="https://github.com/NedcloarBR/NestWhats"
 							>
 								<Translate id="home.hero.github">GitHub</Translate>
 							</Link>

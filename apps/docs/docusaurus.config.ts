@@ -16,7 +16,7 @@ const LOCALE = process.env.DOCUSAURUS_CURRENT_LOCALE ?? "en";
 const IS_DEFAULT_LOCALE = LOCALE === "en";
 
 const GITHUB_ORG = "NedcloarBR";
-const GITHUB_REPO = "nestwhats";
+const GITHUB_REPO = "NestWhats";
 const EDIT_BASE = `https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/tree/master/apps/docs`;
 
 /** Every published package, in the order the sidebar and API reference use. */

@@ -13,13 +13,13 @@
   <a href="https://www.npmjs.com/package/@nestwhats/webhook">
     <img src="https://img.shields.io/npm/v/%40nestwhats%2Fwebhook" alt="npm version">
   </a>
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/packages/webhook">
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/packages/webhook">
     <img src="https://img.shields.io/badge/docs-nestwhats-c11e43" alt="Documentation">
   </a>
 </p>
 
 <p align="center">
-  <b><a href="https://nedcloarbr.github.io/nestwhats/docs/packages/webhook">Read the documentation</a></b>
+  <b><a href="https://nedcloarbr.github.io/NestWhats/docs/packages/webhook">Read the documentation</a></b>
 </p>
 
 ## About

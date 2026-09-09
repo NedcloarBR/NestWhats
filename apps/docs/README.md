@@ -1,6 +1,6 @@
 # NestWhats documentation
 
-The site at <https://nedcloarbr.github.io/nestwhats>, built with
+The site at <https://nedcloarbr.github.io/NestWhats>, built with
 [Docusaurus](https://docusaurus.io).
 
 ## Running it

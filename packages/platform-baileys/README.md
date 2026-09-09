@@ -13,13 +13,13 @@
   <a href="https://www.npmjs.com/package/@nestwhats/platform-baileys">
     <img src="https://img.shields.io/npm/v/%40nestwhats%2Fplatform-baileys" alt="npm version">
   </a>
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/platforms/baileys">
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/platforms/baileys">
     <img src="https://img.shields.io/badge/docs-nestwhats-c11e43" alt="Documentation">
   </a>
 </p>
 
 <p align="center">
-  <b><a href="https://nedcloarbr.github.io/nestwhats/docs/platforms/baileys">Read the documentation</a></b>
+  <b><a href="https://nedcloarbr.github.io/NestWhats/docs/platforms/baileys">Read the documentation</a></b>
 </p>
 
 ## ❓ About

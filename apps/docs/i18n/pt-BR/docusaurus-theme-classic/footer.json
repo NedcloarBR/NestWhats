@@ -24,11 +24,11 @@
 	},
 	"link.item.label.GitHub": {
 		"message": "GitHub",
-		"description": "The label of footer link with label=GitHub linking to https://github.com/NedcloarBR/nestwhats"
+		"description": "The label of footer link with label=GitHub linking to https://github.com/NedcloarBR/NestWhats"
 	},
 	"link.item.label.Issues": {
 		"message": "Issues",
-		"description": "The label of footer link with label=Issues linking to https://github.com/NedcloarBR/nestwhats/issues"
+		"description": "The label of footer link with label=Issues linking to https://github.com/NedcloarBR/NestWhats/issues"
 	},
 	"link.item.label.Getting started": {
 		"message": "Getting started",
@@ -59,7 +59,7 @@
 		"description": "The label of footer link with label=@nestwhats/locale linking to https://www.npmjs.com/package/@nestwhats/locale"
 	},
 	"copyright": {
-		"message": "Copyright © 2026 NedcloarBR. <a href=\"https://github.com/NedcloarBR/nestwhats/blob/master/License\">GPL-3.0</a> licensed.",
+		"message": "Copyright © 2026 NedcloarBR. <a href=\"https://github.com/NedcloarBR/NestWhats/blob/master/License\">GPL-3.0</a> licensed.",
 		"description": "The footer copyright"
 	}
 }

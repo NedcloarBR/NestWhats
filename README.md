@@ -31,13 +31,13 @@
 </p>
 
 <p align="center">
-  <b><a href="https://nedcloarbr.github.io/nestwhats">Documentation</a></b>
+  <b><a href="https://nedcloarbr.github.io/NestWhats">Documentation</a></b>
   •
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/getting-started">Getting started</a>
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/getting-started">Getting started</a>
   •
   <a href="./examples">Examples</a>
   •
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/platforms/overview">Choosing a platform</a>
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/platforms/overview">Choosing a platform</a>
 </p>
 
 ---
@@ -48,12 +48,12 @@ This is the NestWhats monorepo. Each package is published independently — inst
 
 | Package | Version | Description | Docs |
 |---------|---------|-------------|------|
-| [`nestwhats`](./packages/core) | [![npm](https://img.shields.io/npm/v/nestwhats)](https://www.npmjs.com/package/nestwhats) | Core — adapter-agnostic framework: commands, guards, listeners, client lifecycle | [Guide](https://nedcloarbr.github.io/nestwhats/docs/intro) |
-| [`@nestwhats/platform-whatsapp-web.js`](./packages/platform-wwjs) | [![npm](https://img.shields.io/npm/v/@nestwhats/platform-whatsapp-web.js)](https://www.npmjs.com/package/@nestwhats/platform-whatsapp-web.js) | whatsapp-web.js adapter — real WhatsApp Web in a headless browser | [Guide](https://nedcloarbr.github.io/nestwhats/docs/platforms/whatsapp-web-js) |
-| [`@nestwhats/platform-baileys`](./packages/platform-baileys) | [![npm](https://img.shields.io/npm/v/@nestwhats/platform-baileys)](https://www.npmjs.com/package/@nestwhats/platform-baileys) | Baileys adapter — WebSocket, no browser; QR or pairing code | [Guide](https://nedcloarbr.github.io/nestwhats/docs/platforms/baileys) |
-| [`@nestwhats/dashboard`](./packages/dashboard) | [![npm](https://img.shields.io/npm/v/@nestwhats/dashboard)](https://www.npmjs.com/package/@nestwhats/dashboard) | Live web UI: client status, QR codes, and virtual client management | [Guide](https://nedcloarbr.github.io/nestwhats/docs/packages/dashboard) |
-| [`@nestwhats/webhook`](./packages/webhook) | [![npm](https://img.shields.io/npm/v/@nestwhats/webhook)](https://www.npmjs.com/package/@nestwhats/webhook) | Outbound dispatch — bind `@Webhook()` listeners per client at runtime | [Guide](https://nedcloarbr.github.io/nestwhats/docs/packages/webhook) |
-| [`@nestwhats/locale`](./packages/locale) | [![npm](https://img.shields.io/npm/v/@nestwhats/locale)](https://www.npmjs.com/package/@nestwhats/locale) | Internationalization (i18n) support for NestWhats | [Guide](https://nedcloarbr.github.io/nestwhats/docs/packages/locale) |
+| [`nestwhats`](./packages/core) | [![npm](https://img.shields.io/npm/v/nestwhats)](https://www.npmjs.com/package/nestwhats) | Core — adapter-agnostic framework: commands, guards, listeners, client lifecycle | [Guide](https://nedcloarbr.github.io/NestWhats/docs/intro) |
+| [`@nestwhats/platform-whatsapp-web.js`](./packages/platform-wwjs) | [![npm](https://img.shields.io/npm/v/@nestwhats/platform-whatsapp-web.js)](https://www.npmjs.com/package/@nestwhats/platform-whatsapp-web.js) | whatsapp-web.js adapter — real WhatsApp Web in a headless browser | [Guide](https://nedcloarbr.github.io/NestWhats/docs/platforms/whatsapp-web-js) |
+| [`@nestwhats/platform-baileys`](./packages/platform-baileys) | [![npm](https://img.shields.io/npm/v/@nestwhats/platform-baileys)](https://www.npmjs.com/package/@nestwhats/platform-baileys) | Baileys adapter — WebSocket, no browser; QR or pairing code | [Guide](https://nedcloarbr.github.io/NestWhats/docs/platforms/baileys) |
+| [`@nestwhats/dashboard`](./packages/dashboard) | [![npm](https://img.shields.io/npm/v/@nestwhats/dashboard)](https://www.npmjs.com/package/@nestwhats/dashboard) | Live web UI: client status, QR codes, and virtual client management | [Guide](https://nedcloarbr.github.io/NestWhats/docs/packages/dashboard) |
+| [`@nestwhats/webhook`](./packages/webhook) | [![npm](https://img.shields.io/npm/v/@nestwhats/webhook)](https://www.npmjs.com/package/@nestwhats/webhook) | Outbound dispatch — bind `@Webhook()` listeners per client at runtime | [Guide](https://nedcloarbr.github.io/NestWhats/docs/packages/webhook) |
+| [`@nestwhats/locale`](./packages/locale) | [![npm](https://img.shields.io/npm/v/@nestwhats/locale)](https://www.npmjs.com/package/@nestwhats/locale) | Internationalization (i18n) support for NestWhats | [Guide](https://nedcloarbr.github.io/NestWhats/docs/packages/locale) |
 | `@nestwhats/metrics` | _planned_ | Prometheus/OpenTelemetry metrics — messages, commands, client status; replaces the health indicator in core | — |
 
 ## Examples
@@ -143,7 +143,7 @@ yarn build:webhook
 ### Documentation site
 
 The site under `apps/docs` is a Docusaurus app, published to
-[nedcloarbr.github.io/nestwhats](https://nedcloarbr.github.io/nestwhats) on
+[nedcloarbr.github.io/NestWhats](https://nedcloarbr.github.io/NestWhats) on
 every push to `master`.
 
 ```bash

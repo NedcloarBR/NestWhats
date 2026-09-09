@@ -13,13 +13,13 @@
   <a href="https://www.npmjs.com/package/nestwhats">
     <img src="https://img.shields.io/npm/v/nestwhats" alt="npm version">
   </a>
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/intro">
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/intro">
     <img src="https://img.shields.io/badge/docs-nestwhats-c11e43" alt="Documentation">
   </a>
 </p>
 
 <p align="center">
-  <b><a href="https://nedcloarbr.github.io/nestwhats/docs/intro">Read the documentation</a></b>
+  <b><a href="https://nedcloarbr.github.io/NestWhats/docs/intro">Read the documentation</a></b>
 </p>
 
 ## ❓ About

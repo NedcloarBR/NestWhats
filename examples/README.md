@@ -7,11 +7,11 @@
 <h3 align="center">Small, runnable applications — one per thing the framework does</h3>
 
 <p align="center">
-  <b><a href="https://nedcloarbr.github.io/nestwhats">Documentation</a></b>
+  <b><a href="https://nedcloarbr.github.io/NestWhats">Documentation</a></b>
   •
-  <a href="https://nedcloarbr.github.io/nestwhats/docs/getting-started">Getting started</a>
+  <a href="https://nedcloarbr.github.io/NestWhats/docs/getting-started">Getting started</a>
   •
-  <a href="https://github.com/NedcloarBR/nestwhats">Source code</a>
+  <a href="https://github.com/NedcloarBR/NestWhats">Source code</a>
 </p>
 
 ---
