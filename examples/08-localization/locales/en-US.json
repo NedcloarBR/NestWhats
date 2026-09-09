@@ -1,0 +1,6 @@
+{
+	"greeting": {
+		"hello": "Hello, {{ name }}!",
+		"bye": "See you around."
+	}
+}

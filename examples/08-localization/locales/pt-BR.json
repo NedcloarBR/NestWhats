@@ -1,0 +1,6 @@
+{
+	"greeting": {
+		"hello": "Olá, {{ name }}!",
+		"bye": "Até mais."
+	}
+}

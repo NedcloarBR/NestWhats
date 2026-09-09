@@ -1,0 +1,9 @@
+dist
+node_modules
+
+# WhatsApp sessions and runtime state: never commit these.
+.wwebjs_auth
+.wwebjs_cache
+.baileys_auth
+.nestwhats
+.env
