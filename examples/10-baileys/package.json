@@ -17,7 +17,7 @@
 		"nestwhats": "^4.0.0",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.1",
-		"@nestwhats/platform-baileys": "^4.0.0",
+		"@nestwhats/platform-baileys": "^1.0.0",
 		"@whiskeysockets/baileys": "^7.0.0-rc14"
 	},
 	"devDependencies": {
