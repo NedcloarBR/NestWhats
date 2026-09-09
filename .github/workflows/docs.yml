@@ -1,0 +1,69 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master]
+    # Only rebuild when something the site renders actually changed. The API
+    # reference is generated from the packages' sources, so those count too.
+    paths:
+      - "apps/docs/**"
+      - "packages/*/src/**"
+      - ".github/workflows/docs.yml"
+  # So a pull request that touches the docs is checked without deploying.
+  pull_request:
+    paths:
+      - "apps/docs/**"
+      - "packages/*/src/**"
+  workflow_dispatch:
+
+# One deployment at a time, and never cancel one in flight: a half-published
+# site is worse than a slightly stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build the site
+        working-directory: apps/docs
+        run: yarn build
+
+      - name: Upload artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/docs/build
+
+  deploy:
+    # A pull request builds to prove it compiles; only master publishes.
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
