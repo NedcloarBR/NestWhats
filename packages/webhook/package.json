@@ -1,7 +1,7 @@
 {
 	"name": "@nestwhats/webhook",
 	"description": "Dynamic webhook event binding with persistence for NestWhats",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"type": "module",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
