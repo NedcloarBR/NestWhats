@@ -1,7 +1,7 @@
 {
 	"name": "@nestwhats/platform-baileys",
 	"description": "Baileys adapter for NestWhats",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"type": "module",
 	"author": {
 		"name": "Miguel Alexandre Uhlein",
